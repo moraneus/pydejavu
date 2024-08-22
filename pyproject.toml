@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "pydejavu"
+version = "0.1.0"
+description = "pyDejaVu is a Python implementation that wraps the original DejaVu jar file, providing a bridge between Python and the Java-based DejaVu runtime verification tool. This wrapper extends DejaVu's functionality by supporting a 2-phase monitoring approach."
+authors = ["moraneus <moraneus@gmail.com>"]
+license = "Apache License 2.0"
+readme = "README.md"
+include = [
+    { path = "libs/*", format = "sdist" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pyjnius = "1.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

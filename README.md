@@ -337,6 +337,31 @@ This structure ensures that each event is correctly recognized and processed by 
 
 A whole monitor examples can be found in the [examples](examples%2Fpydejavu_monitor) folder.
 
+## Output Files
+After each execution of `PyDejaVu`, several output files are generated and stored in designated folders. 
+These outputs are crucial for reviewing the results of the verification process and understanding the 
+internal workings of the tool.
+
+### Logs Folder:
+
+The logs folder will contain the log file from the last execution. 
+This log file is named with a timestamp to ensure that each run's output is distinct and easy to identify.
+
+### Output Folder:
+
+The output folder contains several important files generated during the verification process:
+- `ast.dot`: A Graphviz source file used to create an abstract syntax tree (AST) graph for the specification. 
+This file can be visualized using Graphviz to better understand the structure of the specification.
+- `TraceMonitor.jar`: If the specification was compiled into a Java archive, this file will contain the 
+compiled monitor.
+- `TraceMonitor.scala`: If the specification was synthesized into Scala code, this file will be generated. 
+It represents the synthesized monitor in Scala.
+- `resultFile`: This file contains the results of the original DEJAVU execution, capturing the outcomes of 
+the verification process.
+
+These output files provide a comprehensive overview of each execution, allowing you to analyze and debug the 
+behavior of your specifications in detail.
+
 ## Contributors - For TP-DejaVu (Ordered by last name):
 * [Klaus Havelund](http://www.havelund.com), Jet Propulsion Laboratory/NASA, USA
 * [Moran Omer](https://github.com/moraneus), Bar Ilan University, Israel
