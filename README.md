@@ -134,6 +134,95 @@ If you encounter any issues while installing or using `PyDejaVu` via pip, consid
  - Ensure that your Python environment is correctly configured and that you have the necessary permissions to install packages. 
  - If you’re using a virtual environment, make sure it’s activated before running the pip install command.
 
+## Trace File Format
+The trace file used by `PyDejaVu` should be in a comma-separated value (CSV) format, 
+similar to the format described in this [CSV file format guide](http://edoceo.com/utilitas/csv-file-format). 
+The file defines a sequence of events that `PyDejaVu` will process during runtime verification.
+
+### Example Trace File
+Consider the following example of a trace file:
+```csv
+start,process,1
+update,process,2.5
+update,process,True
+complete,process
+```
+This trace file describes four events with no leading spaces:
+1. `start(process, 1)`
+2. `update(process, 2.5)`
+3. `update(process, True)`
+4. `complete(process)`
+
+Each line in the file corresponds to an event, where the first value is the event name, 
+and the subsequent values are the arguments passed to that event.
+
+### Special Keywords in Trace Files
+In addition to regular event lines, the trace file format supports special keywords that signal specific 
+actions to `PyDejaVu`. These keywords help manage the runtime verification process, 
+particularly when handling online monitoring.
+
+#### `#end#`:
+- **Purpose**: Notifies `DejaVu` to execute its end function, which summarizes the results up to that point.
+- **Usage**: This keyword is essential because `PyDejaVu` operates as an online monitoring tool with respect to DejaVu, 
+where events are processed in real-time. 
+Since `DejaVu` cannot inherently know when the event trace will end, 
+the `#end#` keyword provides a clear signal to summarize and conclude the verification process.
+- **Example**:
+    ```csv
+      start,process,1
+      update,process,2.5
+      #end#
+    ```
+- **Result**: After encountering #end#, DejaVu will summarize the results of the verification process up to this point.
+    ```bash
+    Processed 1000000 events
+    
+    55392 errors detected!
+    
+    ==================
+      Event Counts:
+    ------------------
+      p : 333432
+      q : 333029
+      r : 333539
+    ==================
+    ```
+  
+#### `#init#`
+
+- **Purpose**: Resets all properties' last evaluation values to False.
+- **Usage**: This keyword is typically used once at the beginning of the trace to initialize all properties to 
+a `False` evaluation state. `PyDejaVu` automatically inserts this at the start of processing to 
+ensure a consistent initial state for all properties. 
+However, users can manually include `#init#` in the trace file if they wish to reset the properties' 
+evaluation states to `False` at any point during the trace.
+Doing so will not affect the DejaVu BDDs summaries or the error statistics, and the monitoring will 
+continue from the last processed event.
+
+
+### Handling of Booleans and Floats
+`PyDejaVu` provides special handling for certain string values and numeric types to support flexible and 
+accurate runtime verification.
+
+#### Boolean Handling
+Strings that represent boolean values, specifically "False", "false", "True", and "true", will be automatically 
+interpreted as booleans by `PyDejaVu`. This means that when such strings are encountered in the trace file, 
+they are treated as the boolean values False or True respectively.
+
+#### Float Handling:
+During the operational phase, `PyDejaVu` can handle floating-point numbers, 
+allowing you to perform operations with decimal precision.
+However, when these values are passed to the declarative phase 
+(for example, in the logic specified in your properties), they will be automatically cast to integers. 
+This casting ensures compatibility with the formal verification process, which typically operates on integer values.
+
+Example:
+```csv
+update,process,2.5
+```
+In the operational phase, this value can be handled as a float (2.5). 
+When passed to the declarative phase, it will be cast to 2.
+
 ## Usage
 
 `PyDejaVu` is a versatile tool that bridges Python's operational capabilities with the rigorous, 
@@ -208,9 +297,6 @@ dejavu = Monitor(i_bits=20, i_statistics=False)
 # Compile the synthesized Scala monitor
 compile_jar_path = dejavu.compile_monitor('/path/to/TraceMonitor.scala')
 
-# Update monitor spec names - this is mandatory when the specification is not synthesized from scratch
-dejavu.spec_names = ['example']
-
 # Link the monitor to the compiled JAR file
 dejavu.linkage_monitor(compile_jar_path)
 ```
@@ -221,9 +307,6 @@ Monitor after initialization.
 ```python
 # Initialize the Monitor with custom settings
 dejavu = Monitor(i_bits=20, i_statistics=False)
-
-# Update monitor spec names - this is mandatory when the specification is not synthesized from scratch
-dejavu.spec_names = ['example']
 
 # Link the monitor directly to the pre-compiled JAR file
 dejavu.linkage_monitor('/path/to/TraceMonitor.jar')
