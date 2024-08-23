@@ -83,15 +83,15 @@ class SpecParserSynthesizer:
             spec_file.write(i_specification)
             spec_file_path = spec_file.name
 
-        try:
-            cmd = [
-                "java",
-                "-cp", f".:{self.__m_dejavu_jar_path}",
-                "dejavu.Verify",
-                "--specfile", spec_file_path,
-                "--execution", "1",
-            ]
+        cmd = [
+            "java",
+            "-cp", f".:{self.__m_dejavu_jar_path}",
+            "dejavu.Verify",
+            "--specfile", spec_file_path,
+            "--execution", "1",
+        ]
 
+        try:
             stdout = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return stdout.stdout
 

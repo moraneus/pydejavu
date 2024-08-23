@@ -31,4 +31,4 @@ for chunk in dejavu.read_bulk_events('/path/to/trace/file', chunk_size=10000):
     results = dejavu.verify.process_events(chunk)
     dejavu.logger.debug(f"Processed chunk of {len(chunk)} events")
     for result in results:
-        dejavu.logger.debug(result)
+        dejavu.logger.debug(str(result))

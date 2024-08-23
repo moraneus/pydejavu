@@ -15,13 +15,13 @@ class JarPaths(Enum):
 
 
 class JNIConfig:
-    """Configuration class for setting up Java Native Interface (JNI) with custom options and classpaths."""
+    """Configuration class for setting up Java Native Interface (JNI) with custom options and classpath."""
 
     def __init__(self, i_logger: Logger = None):
         """
-        Initializes the JNIConfig instance with default classpaths and JVM options.
+        Initializes the JNIConfig instance with default classpath and JVM options.
 
-        The default classpaths include the Scala and DejaVu JAR files. Additional JVM options for
+        The default classpath include the Scala and DejaVu JAR files. Additional JVM options for
         memory allocation are also set.
 
         Args:
@@ -40,7 +40,7 @@ class JNIConfig:
 
     def add_path(self, path: str) -> None:
         """
-        Adds an additional path to the classpath if it exists.
+        Adds a path to the classpath if it exists.
 
         If the specified path does not exist, a warning is printed and the path is not added.
 
@@ -79,7 +79,7 @@ class JNIConfig:
         """
         Initializes the jnius configuration by setting the classpath and Java options.
 
-        This method combines the default classpaths, any additional paths, and any custom JVM options,
+        This method combines the default classpath, any additional paths, and any custom JVM options,
         and then applies them to the jnius configuration.
         """
         full_classpath = self.classpath + self.additional_paths
@@ -104,6 +104,6 @@ class JNIConfig:
             self.__m_logger.debug("Heap size successfully set to 8GB or more.")
         else:
             self.__m_logger.warning(f"Warning: Heap size is less than 8GB. "
-                                 f"Actual size: {max_memory / (1024 * 1024 * 1024):.2f} GB")
+                                    f"Actual size: {max_memory / (1024 * 1024 * 1024):.2f} GB")
 
         self.__m_logger.debug(f"JAVA_OPTS: {os.environ.get('JAVA_OPTS', 'Not set')}")

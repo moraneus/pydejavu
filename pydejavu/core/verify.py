@@ -176,7 +176,8 @@ class Verify:
             return ",".join(map(self.__format_arg, args))
         return str(args)
 
-    def __format_arg(self, arg: Any) -> str:
+    @staticmethod
+    def __format_arg(arg: Any) -> str:
         """
         Format an argument for string representation.
 
@@ -190,11 +191,11 @@ class Verify:
             str: The formatted string representation of the argument.
 
         Examples:
-            >>> self.__format_arg(True)
+            self.__format_arg(True)
             'true'
-            >>> self.__format_arg(42)
+            self.__format_arg(42)
             '42'
-            >>> self.__format_arg("hello")
+            self.__format_arg("hello")
             'hello'
         """
         if isinstance(arg, bool):
@@ -202,8 +203,10 @@ class Verify:
         return str(arg)
 
     @staticmethod
-    def cast_args(args: Union[List, Dict, Any], type_hints: Dict[str, type], param_names: List[str]) -> Union[
-        List, Dict, Any]:
+    def cast_args(
+            args: Union[List, Dict, Any],
+            type_hints: Dict[str, type],
+            param_names: List[str]) -> Union[List, Dict, Any]:
         """
         Casts arguments to their respective types based on provided type hints and parameter names.
         Args:
@@ -265,7 +268,8 @@ class Verify:
 
         return self.__format_result(result)
 
-    def __format_result(self, result: List[Any]) -> str:
+    @staticmethod
+    def __format_result(result: List[Any]) -> str:
         """
         Formats the result of an event core.
 
@@ -324,7 +328,8 @@ class Verify:
         and updates the shared variables with the verdict for each property.
 
         Args:
-            last_eval_result (str): A string containing the evaluation results in the format 'property1=verdict1,property2=verdict2,...'.
+            last_eval_result (str): A string containing the evaluation results in the
+            format 'property1=verdict1,property2=verdict2,...'.
         """
         for spec in last_eval_result.split(','):
             try:

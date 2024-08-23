@@ -68,8 +68,6 @@ class Monitor:
         """
         return self.__m_logger
 
-    import time
-
     def init_monitor(self):
         """
         Initializes the monitor by synthesizing, compiling, and linking the specification.
@@ -101,7 +99,7 @@ class Monitor:
         synthesizer = SpecParserSynthesizer(i_logger=self.__m_logger)
         parse_result = synthesizer.parse_and_synthesize(spec)
         synth_time = time.time() - start_time
-        self.__m_logger.info(f"Specification synthesizer process completed in {synth_time:.2f} seconds")
+        self.__m_logger.info(f"Specification synthesizer process completed in {synth_time: .2f} seconds")
         self.__m_logger.info(f"DejaVu Output: \n{parse_result}")
 
     def compile_monitor(self, source: Optional[str] = None) -> str:
@@ -121,7 +119,7 @@ class Monitor:
         compiler = ScalaMonitorCompiler(i_source=source, i_logger=self.__m_logger)
         compile_jar_path = compiler.compile_monitor(generate_jar=True)
         compile_time = time.time() - start_time
-        self.__m_logger.info(f"Synthesizer monitor compilation completed in {compile_time:.2f} seconds")
+        self.__m_logger.info(f"Synthesizer monitor compilation completed in {compile_time: .2f} seconds")
         return compile_jar_path
 
     def linkage_monitor(self, compile_jar_monitor: str) -> None:
@@ -142,10 +140,11 @@ class Monitor:
             i_statistics=self.__m_statistics)
 
         # Initialize the shared variables for the specification verdicts.
-        # This is done by execute a "init" event which then return False for all defined properties
+        # This is done by execute an "init" event which then return False for all defined properties
         self.__m_verify.process_event({"name": "#init#", "args": []})
 
-    def read_bulk_events(self, i_trace_file: str, chunk_size: int = 10000):
+    @staticmethod
+    def read_bulk_events(i_trace_file: str, chunk_size: int = 10000):
         """
         Reads a large number of events from a trace file in chunks.
 
