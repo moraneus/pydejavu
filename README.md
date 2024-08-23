@@ -1,7 +1,7 @@
 # PyDejaVu
 
-![PyPI](https://img.shields.io/pypi/v/py-dejavu)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/py-dejavu)
+![PyPI](https://img.shields.io/pypi/v/PyDejaVu-RV)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/PyDejaVu-RV)
 [![License: MIT](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://opensource.org/license/apache-2-0)
 
 ![pydejavu.png](extra%2Fimages%2Fpydejavu.jpg)
