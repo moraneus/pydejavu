@@ -13,6 +13,8 @@ include = [
 python = "^3.8"
 pyjnius = "1.6.1"
 pytest = "^8.3.2"
+pytest-xdist = "^3.6.1"
+pytest-forked = "^1.6.0"
 
 [build-system]
 requires = ["poetry-core"]
