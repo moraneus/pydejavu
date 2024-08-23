@@ -1,15 +1,37 @@
 [tool.poetry]
 name = "PyDejaVu-RV"
-version = "0.1.0"
+version = "0.2.0"
 description = "PyDejaVu is a Python implementation that wraps the original DejaVu jar file, providing a bridge between Python and the Java-based DejaVu runtime verification tool. This wrapper extends DejaVu's functionality by supporting a 2-phase monitoring approach."
 authors = ["moraneus <moraneus@gmail.com>"]
 license = "Apache License 2.0"
 readme = "README.md"
 packages = [{include = "pydejavu"}]
 include = [
-    { path = "libs/*", format = "sdist" },  # Ensure this path is correct
-    { path = "pydejavu/*", format = "sdist" }  # Include your main package
+    { path = "libs/*", format = "sdist" },
+    { path = "pydejavu/*", format = "sdist" }
 ]
+
+# Add these new fields
+homepage = "https://github.com/moraneus/pydejavu"
+repository = "https://github.com/moraneus/pydejavu"
+documentation = "https://github.com/moraneus/pydejavu/blob/main/README.md"
+keywords = ["runtime verification", "dejavu", "monitoring", "java bridge"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance"
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/moraneus/pydejavu/issues"
 
 [tool.poetry.dependencies]
 python = "^3.8"
