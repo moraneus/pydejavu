@@ -6,7 +6,8 @@ authors = ["moraneus <moraneus@gmail.com>"]
 license = "Apache License 2.0"
 readme = "README.md"
 include = [
-    { path = "libs/*", format = "sdist" }
+    { path = "libs/*", format = "sdist" },  # Ensure this path is correct
+    { path = "pydejavu/*", format = "sdist" }  # Include your main package
 ]
 
 [tool.poetry.dependencies]
