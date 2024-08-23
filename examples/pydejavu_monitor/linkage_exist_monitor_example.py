@@ -2,9 +2,6 @@ from pydejavu.core.monitor import Monitor
 
 dejavu = Monitor(i_bits=20, i_statistics=True)
 
-# Update monitor spec names - this a mandatory when we are not synthesized the specification from scratch
-dejavu.spec_names = ['example']
-
 # Link the monitor directly to the pre-compiled JAR file
 dejavu.linkage_monitor('/path/to/TraceMonitor.jar')
 

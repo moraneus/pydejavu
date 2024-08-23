@@ -5,9 +5,6 @@ dejavu = Monitor(i_bits=20, i_statistics=True)
 # Compile the synthesized Scala monitor
 compile_jar_path = dejavu.compile_monitor('/path/to/TraceMonitor.scala')
 
-# Update monitor spec names - this is mandatory when the specification is not synthesized from scratch
-dejavu.spec_names = ['example']
-
 # Link the monitor to the compiled JAR file
 dejavu.linkage_monitor(compile_jar_path)
 
