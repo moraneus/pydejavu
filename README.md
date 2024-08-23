@@ -53,7 +53,7 @@ Here are some reasons why you might choose this method:
 
 #### Prerequisites
 
-Ensure that you have Python 3.7 or higher installed on your system. 
+Ensure that you have Python 3.8 or higher installed on your system. 
 You will also need [Poetry](https://python-poetry.org/) for managing dependencies and packaging the project.
 
 #### Step 1: Clone the Repository
