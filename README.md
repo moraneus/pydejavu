@@ -5,7 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://opensource.org/license/apache-2-0)
 
 ![pydejavu.png](extra%2Fimages%2Fpydejavu.jpg)
-PyDejaVu is a Python library that wraps the original [DejaVu](https://github.com/havelund/dejavu/tree/master) binary, 
+
+`PyDejaVu` is a Python library that wraps the original [DejaVu](https://github.com/havelund/dejavu/tree/master) binary, 
 providing a bridge between Python and the 
 Java-based DejaVu runtime verification tool. It is a powerful tool designed for two-phase 
 Runtime Verification (RV) processing, similar to the [Tp-DejaVu](https://github.com/moraneus/TP-DejaVu) tool, 
@@ -15,7 +16,7 @@ the DejaVu tool.
 
 #### Two-Phase Runtime Verification
 
-PyDejaVu operates in two distinct phases:
+`PyDejaVu` operates in two distinct phases:
 
 1. **Operational Runtime Verification (Phase 1):**
    - This phase is implemented in Python, allowing for any Pythonic operations on the events. 
@@ -116,7 +117,7 @@ If you prefer to install `PyDejaVu` directly from PyPI using `pip`, you can do s
 
 To install the latest version of `PyDejaVu` from PyPI, run the following command:
 ```bash
-pip install py-dejavu
+pip install PyDejaVu-RV
 ```
 This command will automatically download and install `PyDejaVu` and all its dependencies.
 
