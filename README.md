@@ -4,7 +4,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/PyDejaVu-RV)
 [![License: MIT](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://opensource.org/license/apache-2-0)
 
-![pydejavu.png](extra%2Fimages%2Fpydejavu.jpg)
+![pydejavu.png](https://github.com/moraneus/pydejavu/blob/main/extra/images/pydejavu.jpg)
 
 `PyDejaVu` is a Python library that wraps the original [DejaVu](https://github.com/havelund/dejavu/tree/master) binary, 
 providing a bridge between Python and the 
