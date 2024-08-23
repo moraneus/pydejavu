@@ -56,3 +56,4 @@ class LinkageMonitor:
         self.__m_jni_config.check_heap_size()
 
         return monitor
+

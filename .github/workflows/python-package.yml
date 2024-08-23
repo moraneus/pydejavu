@@ -2,9 +2,9 @@ name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -17,10 +17,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -28,12 +30,33 @@ jobs:
         poetry config virtualenvs.create false
         poetry install --no-interaction --no-ansi
         pip install flake8  # Install flake8 explicitly
+
+    - name: Install Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '22'
+
+    - name: Install SDKMAN! and Scala 2.12.18
+      run: |
+        curl -s "https://get.sdkman.io" | bash
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        sdk install scala 2.12.18
+        echo "SCALA_HOME=$HOME/.sdkman/candidates/scala/current" >> $GITHUB_ENV
+        echo "$HOME/.sdkman/candidates/scala/current/bin" >> $GITHUB_PATH
+
+    - name: Verify Scala installation
+      run: |
+        scalac -version  # Check if Scala is installed correctly and available
+
+
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Test with pytest
       run: |
-        pytest
+        pytest --forked

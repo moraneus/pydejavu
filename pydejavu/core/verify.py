@@ -112,11 +112,20 @@ class Verify:
         if handler is None:
             modified_eval_input = origin_eval_input
         else:
+            handler_info = self.__get_handler_info(handler)
+            required_params = self.__m_handler_info_cache[handler]["num_of_params"]
+            if len(event_args) != required_params:
+                raise ValueError(
+                    f"Event '{event_name}' expects {required_params} argument(s), "
+                    f"but {len(event_args)} were given.")
             try:
-                modified_eval_input = self.__process_mapped_event(handler, event_args)
+                modified_eval_input = self.__process_mapped_event(handler, handler_info, event_args)
+            except TypeError as e:
+                raise TypeError(f"Error processing event {event_name}: {str(e)}")
             except Exception as e:
                 self.__m_logger.error(f"Error processing event {event_name}: {str(e)}")
                 modified_eval_input = origin_eval_input
+
 
         try:
             eval_result = self.__m_monitor.eval(modified_eval_input)
@@ -242,19 +251,19 @@ class Verify:
             if target_type == bool:
                 return value.lower() in ('true', 't', 'yes', 'y', '1')
             return target_type(value)
-        except (ValueError, TypeError):
-            return value
+        except (ValueError, TypeError) as e:
+            raise TypeError(f"Failed to cast the string '{value}' into {target_type} ({str(e)})")
 
-    def __process_mapped_event(self, handler: Callable, event_args: List[Any]) -> str:
+    def __process_mapped_event(self, handler: Callable, handler_info: Dict[str, Any], event_args: List[Any]) -> str:
         """
         Processes an event using its mapped handler.
         Args:
             handler (Callable): The handler function for the event.
+            handler_info (Dict[str, Any]): Handler info details.
             event_args (List[Any]): The arguments for the event.
         Returns:
             str: The formatted result from processing the event.
         """
-        handler_info = self.__get_handler_info(handler)
         type_hints = handler_info['type_hints']
         param_names = handler_info['param_names']
         casted_args = self.cast_args(event_args, type_hints, param_names)
@@ -289,6 +298,7 @@ class Verify:
                 formatted_result.append(str(item))
         return ','.join(formatted_result)
 
+    @lru_cache(maxsize=128)
     def __get_handler_info(self, handler: Callable) -> Dict[str, Any]:
         """
         Retrieves or caches handler information (type hints and parameter names).
@@ -300,9 +310,13 @@ class Verify:
             Dict[str, Any]: A dictionary containing 'type_hints' and 'param_names'.
         """
         if handler not in self.__m_handler_info_cache:
+            sig = inspect.signature(handler)
+            required_params = sum(1 for param in sig.parameters.values()
+                                  if param.default == param.empty and param.kind != param.VAR_POSITIONAL)
             self.__m_handler_info_cache[handler] = {
                 'type_hints': self._get_type_hints(handler),
-                'param_names': list(inspect.signature(handler).parameters.keys())
+                'param_names': list(sig.parameters.keys()),
+                'num_of_params': required_params
             }
         return self.__m_handler_info_cache[handler]
 
