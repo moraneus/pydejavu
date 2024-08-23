@@ -1,5 +1,9 @@
 # PyDejaVu
 
+![PyPI](https://img.shields.io/pypi/v/py-dejavu)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/py-dejavu)
+[![License: MIT](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://opensource.org/license/apache-2-0)
+
 ![pydejavu.png](extra%2Fimages%2Fpydejavu.jpg)
 PyDejaVu is a Python library that wraps the original [DejaVu](https://github.com/havelund/dejavu/tree/master) binary, 
 providing a bridge between Python and the 
@@ -112,13 +116,13 @@ If you prefer to install `PyDejaVu` directly from PyPI using `pip`, you can do s
 
 To install the latest version of `PyDejaVu` from PyPI, run the following command:
 ```bash
-pip install pydejavu
+pip install py-dejavu
 ```
 This command will automatically download and install `PyDejaVu` and all its dependencies.
 
 If you need to upgrade `PyDejaVu` to the latest version, you can do so with:
 ```bash
-pip install --upgrade pydejavu
+pip install --upgrade py-dejavu
 ```
 
 
