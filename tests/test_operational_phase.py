@@ -4,7 +4,7 @@ from pydejavu.core.monitor import Monitor
 from pydejavu.core.verify import Verify
 
 
-class TestDejaVuOperational:
+class TestOperationalPhase:
     @pytest.fixture
     def mock_monitor(self):
         monitor = Mock()
