@@ -190,7 +190,7 @@ the `#end#` keyword provides a clear signal to summarize and conclude the verifi
   
 #### `#init#`
 
-- **Purpose**: Resets all properties' last evaluation values to False.
+- **Purpose**: Set all properties' last evaluation values to False.
 - **Usage**: This keyword is typically used once at the beginning of the trace to initialize all properties to 
 a `False` evaluation state. `PyDejaVu` automatically inserts this at the start of processing to 
 ensure a consistent initial state for all properties. 
