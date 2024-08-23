@@ -5,6 +5,7 @@ description = "PyDejaVu is a Python implementation that wraps the original DejaV
 authors = ["moraneus <moraneus@gmail.com>"]
 license = "Apache License 2.0"
 readme = "README.md"
+packages = [{include = "pydejavu"}]
 include = [
     { path = "libs/*", format = "sdist" },  # Ensure this path is correct
     { path = "pydejavu/*", format = "sdist" }  # Include your main package
