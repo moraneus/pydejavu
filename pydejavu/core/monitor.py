@@ -19,7 +19,6 @@ class Monitor:
     shared variables in the runtime environment.
 
     Attributes:
-        __m_spec_names (List[str]): List of specification names synthesized.
         __m_verify (Verify): The Verify object used for handling events and shared variables.
         __m_logger (Logger): The logger instance used for logging within the class.
 
@@ -47,26 +46,7 @@ class Monitor:
         self.__m_bits = i_bits
         self.__m_mode = i_mode
         self.__m_statistics = i_statistics
-        self.__m_spec_names: Optional[List[str]] = None
         self.__m_verify: Optional[Verify] = None
-
-    @property
-    def spec_names(self) -> List[str]:
-        """
-        Returns the list of synthesized specification names.
-
-        Returns:
-            List[str]: List of specification names.
-        """
-        return self.__m_spec_names
-
-    @spec_names.setter
-    def spec_names(self, names: List[str]) -> None:
-        """
-        Update the specification names.
-
-        """
-        self.__m_spec_names = names
 
     @property
     def verify(self) -> Verify:
@@ -123,7 +103,6 @@ class Monitor:
         synth_time = time.time() - start_time
         self.__m_logger.info(f"Specification synthesizer process completed in {synth_time:.2f} seconds")
         self.__m_logger.info(f"DejaVu Output: \n{parse_result}")
-        self.__m_spec_names = synthesizer.names
 
     def compile_monitor(self, source: Optional[str] = None) -> str:
         """
@@ -163,8 +142,8 @@ class Monitor:
             i_statistics=self.__m_statistics)
 
         # Initialize the shared variables for the specification verdicts.
-        for name in self.__m_spec_names:
-            self.set_shared(f"#last_eval_{name}#", False)
+        # This is done by execute a "init" event which then return False for all defined properties
+        self.__m_verify.process_event({"name": "#init#", "args": []})
 
     def read_bulk_events(self, i_trace_file: str, chunk_size: int = 10000):
         """
@@ -241,10 +220,9 @@ class Monitor:
         verdict = self.get_shared(f"#last_eval_{spec_name}#", None)
 
         if verdict is None:
-            valid_properties = ', '.join(self.__m_spec_names) if self.__m_spec_names else 'No properties available'
             self.__m_logger.error(
                 f"Attempting to retrieve verdict for an undefined property '{spec_name}'. "
-                f"Valid properties are: {valid_properties}."
+                f"Valid properties are: {self.__m_spec}."
             )
 
             # Exit the program after logging the error

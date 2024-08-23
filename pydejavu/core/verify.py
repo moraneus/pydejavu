@@ -91,7 +91,7 @@ class Verify:
         """
         self.event_mapper.set_shared(key, value)
 
-    def process_event(self, event: Dict[str, Any]) -> str:
+    def process_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
         """
         Processes a single event and evaluates it using the monitor.
 
@@ -99,7 +99,7 @@ class Verify:
             event (Dict[str, Any]): The event data, including 'name' and 'args'.
 
         Returns:
-            str: The result of processing and evaluating the event.
+            Dict[str, Any]: The result of processing and evaluating the event.
         """
         event_name = event.get('name', '')
         event_args = event.get('args', [])
@@ -107,26 +107,32 @@ class Verify:
 
         handler = self.event_mapper.event_map.get(event_name)
 
+        origin_eval_input = f"{event_name},{','.join(map(self.__format_arg, event_args))}"
+
         if handler is None:
-            eval_input = f"{event_name},{','.join(map(str, event_args))}"
+            modified_eval_input = origin_eval_input
         else:
             try:
-                eval_input = self.__process_mapped_event(handler, event_args)
+                modified_eval_input = self.__process_mapped_event(handler, event_args)
             except Exception as e:
                 self.__m_logger.error(f"Error processing event {event_name}: {str(e)}")
-                eval_input = f"{event_name},{','.join(map(str, event_args))}"
+                modified_eval_input = origin_eval_input
 
         try:
-            eval_result = self.__m_monitor.eval(eval_input)
+            eval_result = self.__m_monitor.eval(modified_eval_input)
             self.__update_last_eval(eval_result)
 
         except Exception as e:
             self.__m_logger.error(f"Error in eval for event {event_name}: {str(e)}")
             eval_result = "Error in eval"
 
-        return f"Event: {event_name}, Args: {self.format_args(event_args)}, Eval result: {eval_result}"
+        return {
+            "Original Event": origin_eval_input,
+            "Modified Event": modified_eval_input,
+            "Eval result": eval_result
+        }
 
-    def process_events(self, events: List[Dict[str, Any]]) -> List[str]:
+    def process_events(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Processes a list of events and evaluates each one.
 
@@ -134,7 +140,7 @@ class Verify:
             events (List[Dict[str, Any]]): A list of event data dictionaries.
 
         Returns:
-            List[str]: A list of results from processing and evaluating each event.
+            List[Dict[str, Any]]: A list of results from processing and evaluating each event.
         """
         return [self.process_event(event) for event in events]
 
@@ -154,8 +160,7 @@ class Verify:
         """
         self.__m_monitor.config(str(i_bits), str(i_mode), str(i_statistics), "output/resultFile")
 
-    @staticmethod
-    def format_args(args: Union[Dict, List, Any]) -> str:
+    def format_args(self, args: Union[Dict, List, Any]) -> str:
         """
         Formats arguments into a string representation.
 
@@ -166,10 +171,35 @@ class Verify:
             str: The formatted arguments as a string.
         """
         if isinstance(args, dict):
-            return ",".join(f"{k}={v}" for k, v in args.items())
+            return ",".join(f"{k}={self.__format_arg(v)}" for k, v in args.items())
         elif isinstance(args, list):
-            return ",".join(map(str, args))
+            return ",".join(map(self.__format_arg, args))
         return str(args)
+
+    def __format_arg(self, arg: Any) -> str:
+        """
+        Format an argument for string representation.
+
+        This method converts boolean values to lowercase strings and
+        all other types to their string representation.
+
+        Args:
+            arg (Any): The argument to be formatted.
+
+        Returns:
+            str: The formatted string representation of the argument.
+
+        Examples:
+            >>> self.__format_arg(True)
+            'true'
+            >>> self.__format_arg(42)
+            '42'
+            >>> self.__format_arg("hello")
+            'hello'
+        """
+        if isinstance(arg, bool):
+            return str(arg).lower()
+        return str(arg)
 
     @staticmethod
     def cast_args(args: Union[List, Dict, Any], type_hints: Dict[str, type], param_names: List[str]) -> Union[
@@ -299,7 +329,7 @@ class Verify:
         for spec in last_eval_result.split(','):
             try:
                 name, verdict = spec.split('=')
-                self.set_shared(f"#last_eval_{name}#", verdict)
+                self.set_shared(f"#last_eval_{name}#", verdict == "true")
             except ValueError:
                 self.__m_logger.error(f"Failed to parse the evaluation result: '{spec}'. "
                                       "Expected format is 'name=verdict'.")
