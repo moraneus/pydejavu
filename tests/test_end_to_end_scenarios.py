@@ -13,7 +13,7 @@ class TestEndToEndScenarios:
             writer = csv.writer(temp_file)
             writer.writerows([
                 ['p', 3], ['q', 5], ['p', 7], ['q', 2], ['p', 1],
-                ['r', 3, 5], ['r', 7, 2], ['r', 1, 2]
+                ['r', 3, 5], ['r', 7, 2], ['r', 1, 2], ['w', -1, -2]
             ])
         return temp_file.name
 
@@ -45,17 +45,22 @@ class TestEndToEndScenarios:
         def handle_p(arg_x: int):
             x_lt_y = arg_x < dejavu.get_shared("y", 0)
             dejavu.set_shared("last_seen_q", False)
-            return ["p", arg_x, x_lt_y]
+            return "p", arg_x, x_lt_y
 
         @dejavu.operational("q")
         def handle_q(arg_y: int):
             dejavu.set_shared("y", arg_y)
             dejavu.set_shared("last_seen_q", True)
-            return ["q", arg_y]
+            return "q", arg_y
 
         @dejavu.operational("r")
         def handle_r(arg_x: int, arg_y: int):
             return ["r", arg_x, arg_y]
+
+        @dejavu.operational("w")
+        def handle_r(arg_x: int, arg_y: int):
+            dejavu.set_shared("x", arg_x)
+            dejavu.set_shared("y", arg_y)
 
         return dejavu
 
@@ -68,7 +73,8 @@ class TestEndToEndScenarios:
             {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
             {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
             {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
-            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"}
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
         ]
 
         actual_results = []
@@ -89,7 +95,8 @@ class TestEndToEndScenarios:
             {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
             {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
             {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
-            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"}
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
         ]
 
         actual_results = []
@@ -144,7 +151,7 @@ class TestEndToEndScenarios:
             assert expected == actual, f"Mismatch in 'p' event results: expected {expected}, got {actual}"
 
     def test_shared_variable_updates_bulk_events_as_dict(self, dejavu_instance, sample_log_file):
-        expected_final_y = 2
+        expected_final_y = -2
         expected_final_last_seen_q = False
 
         for chunk in dejavu_instance.read_bulk_events_as_dict(sample_log_file, chunk_size=3):
@@ -161,7 +168,7 @@ class TestEndToEndScenarios:
             f"got {dejavu_instance.get_shared('last_seen_q')}"
 
     def test_shared_variable_updates_bulk_events_as_string(self, dejavu_instance, sample_log_file):
-        expected_final_y = 2
+        expected_final_y = -2
         expected_final_last_seen_q = False
 
         for chunk in dejavu_instance.read_bulk_events_as_string(sample_log_file, chunk_size=3):

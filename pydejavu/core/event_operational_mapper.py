@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Any, List
+from typing import Callable, Dict, Any, List, Tuple, Optional
 from functools import wraps
 
 from pydejavu.core.shared_state import SharedState
@@ -25,16 +25,32 @@ class EventOperationalMapper:
             callable: The decorator function.
         """
 
-        def decorator(func: Callable[..., List[Any]]):
+        def decorator(func: Callable[..., Optional[Tuple[str, ...] | List[str | int | bool] | None]]):
             @wraps(func)
-            def wrapper(*args, **kwargs) -> List[Any]:
+            def wrapper(*args, **kwargs) -> Optional[Tuple[str, ...] | List[str | int | bool] | None]:
                 self.__m_logger.debug(f"Executing event handler for {event_name}")
                 result = func(*args, **kwargs)
 
-                # Ensure the result is always a list
-                if not isinstance(result, list):
-                    return [result]
-                return result
+                # Allow None as a valid return value
+                if result is None:
+                    return result
+
+                # Check if the result is a tuple
+                if isinstance(result, tuple):
+                    # Ensure the first element is a string
+                    if not result or not isinstance(result[0], str):
+                        raise TypeError("The first item of the return tuple must be a string.")
+                    return result
+
+                # Check if the result is a list
+                if isinstance(result, list):
+                    # Ensure the first element is a string
+                    if not result or not isinstance(result[0], str):
+                        raise TypeError("The first item of the return list must be a string.")
+                    return result
+
+                # If result is neither a tuple, list, nor None, raise an error
+                raise TypeError("The return value must be a tuple, list, or None.")
 
             self.event_map[event_name] = wrapper
             return wrapper
