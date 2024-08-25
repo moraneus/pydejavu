@@ -41,7 +41,6 @@ class Verify:
         self.__m_monitor = monitor
         self.__monitor_setup(i_bits, i_mode, i_statistics)
         self.event_mapper = EventOperationalMapper()
-        self.current_event_name: Optional[str] = None
         self.__m_handler_info_cache: Dict[Callable, Dict[str, Any]] = {}
 
     def event(self, event_name: str) -> Callable:
@@ -55,18 +54,6 @@ class Verify:
             Callable: The function mapped to the event name.
         """
         return self.event_mapper.event(event_name)
-
-    def shared_var(self, var_name: str) -> Callable:
-        """
-        Maps a shared variable name to a callable using the event mapper.
-
-        Args:
-            var_name (str): The name of the shared variable.
-
-        Returns:
-            Callable: The function mapped to the shared variable name.
-        """
-        return self.event_mapper.shared_var(var_name)
 
     def get_shared(self, key: str, default: Any = None) -> Any:
         """
@@ -91,46 +78,50 @@ class Verify:
         """
         self.event_mapper.set_shared(key, value)
 
-    def process_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
+    def process_event(self, event: Union[Dict[str, Any], str]) -> Dict[str, Any]:
         """
         Processes a single event and evaluates it using the monitor.
 
         Args:
-            event (Dict[str, Any]): The event data, including 'name' and 'args'.
+            event (Union[Dict[str, Any], str]): The event data, which can be either a dictionary
+            containing 'name' and 'args', or a string formatted as 'event_name,arg1,arg2,...'.
 
         Returns:
             Dict[str, Any]: The result of processing and evaluating the event.
         """
-        event_name = event.get('name', '')
-        event_args = event.get('args', [])
-        self.current_event_name = event_name
 
-        handler = self.event_mapper.event_map.get(event_name)
-
-        origin_eval_input = f"{event_name},{','.join(map(self.__format_arg, event_args))}"
+        event_name, event_args, origin_eval_input = self._parse_event(event)
+        handler = self.__get_handler(event_name)
 
         if handler is None:
             modified_eval_input = origin_eval_input
         else:
             handler_info = self.__get_handler_info(handler)
             required_params = self.__m_handler_info_cache[handler]["num_of_params"]
+
             if len(event_args) != required_params:
                 raise ValueError(
                     f"Event '{event_name}' expects {required_params} argument(s), "
-                    f"but {len(event_args)} were given.")
+                    f"but {len(event_args)} were given."
+                )
             try:
                 modified_eval_input = self.__process_mapped_event(handler, handler_info, event_args)
+                if modified_eval_input is None:
+                    return {
+                        "Original Event": origin_eval_input,
+                        "Modified Event": "skip",
+                        "Eval result": None
+                    }
+
             except TypeError as e:
                 raise TypeError(f"Error processing event {event_name}: {str(e)}")
             except Exception as e:
                 self.__m_logger.error(f"Error processing event {event_name}: {str(e)}")
                 modified_eval_input = origin_eval_input
 
-
         try:
             eval_result = self.__m_monitor.eval(modified_eval_input)
             self.__update_last_eval(eval_result)
-
         except Exception as e:
             self.__m_logger.error(f"Error in eval for event {event_name}: {str(e)}")
             eval_result = "Error in eval"
@@ -141,17 +132,43 @@ class Verify:
             "Eval result": eval_result
         }
 
-    def process_events(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _parse_event(self, event: Union[Dict[str, Any], str]) -> tuple[str, List[Any], str]:
+        """
+        Parses the input event into event name, arguments, and original eval input.
+
+        Args:
+            event (Union[Dict[str, Any], str]): The event data to parse.
+
+        Returns:
+            tuple[str, List[Any], str]: A tuple containing the event name, list of arguments,
+                and the original eval input string.
+        """
+        if isinstance(event, str):
+            event_parts = event.split(',')
+            event_name = event_parts[0]
+            event_args = event_parts[1:] if len(event_parts) > 1 else []
+            origin_eval_input = event
+        else:
+            event_name = event.get('name', '')
+            event_args = event.get('args', [])
+            origin_eval_input = f"{event_name},{','.join(map(self.__format_arg, event_args))}"
+
+        return event_name, event_args, origin_eval_input
+
+    def process_events(self, events: Union[List[Dict[str, Any]], List[str]]) -> List[Dict[str, Any]]:
         """
         Processes a list of events and evaluates each one.
 
         Args:
-            events (List[Dict[str, Any]]): A list of event data dictionaries.
+            events (Union[Dict[str, Any], str]): A list of event data.
 
         Returns:
             List[Dict[str, Any]]: A list of results from processing and evaluating each event.
         """
         return [self.process_event(event) for event in events]
+
+    def end_eval(self):
+        self.__m_monitor.end_eval()
 
     def __monitor_setup(
             self,
@@ -185,8 +202,8 @@ class Verify:
             return ",".join(map(self.__format_arg, args))
         return str(args)
 
-    @staticmethod
-    def __format_arg(arg: Any) -> str:
+    @lru_cache(maxsize=128)
+    def __format_arg(self, arg: Any) -> str:
         """
         Format an argument for string representation.
 
@@ -211,8 +228,8 @@ class Verify:
             return str(arg).lower()
         return str(arg)
 
-    @staticmethod
-    def cast_args(
+    def __cast_args(
+            self,
             args: Union[List, Dict, Any],
             type_hints: Dict[str, type],
             param_names: List[str]) -> Union[List, Dict, Any]:
@@ -226,15 +243,14 @@ class Verify:
             Union[List, Dict, Any]: The casted arguments.
         """
         if isinstance(args, list):
-            return [Verify.cast_value(arg, type_hints.get(param_names[i], Any)) if i < len(param_names) else arg
+            return [self.cast_value(arg, type_hints.get(param_names[i], Any)) if i < len(param_names) else arg
                     for i, arg in enumerate(args)]
         elif isinstance(args, dict):
-            return {k: Verify.cast_value(v, type_hints.get(k, Any)) for k, v in args.items()}
+            return {k: self.cast_value(v, type_hints.get(k, Any)) for k, v in args.items()}
         else:
-            return Verify.cast_value(args, next(iter(type_hints.values()), Any))
+            return self.cast_value(args, next(iter(type_hints.values()), Any))
 
-    @staticmethod
-    def cast_value(value: Any, target_type: type) -> Any:
+    def cast_value(self, value: Any, target_type: type) -> Any:
         """
         Casts a value to a target type.
 
@@ -254,7 +270,8 @@ class Verify:
         except (ValueError, TypeError) as e:
             raise TypeError(f"Failed to cast the string '{value}' into {target_type} ({str(e)})")
 
-    def __process_mapped_event(self, handler: Callable, handler_info: Dict[str, Any], event_args: List[Any]) -> str:
+    def __process_mapped_event(
+            self, handler: Callable, handler_info: Dict[str, Any], event_args: List[Any]) -> Optional[str]:
         """
         Processes an event using its mapped handler.
         Args:
@@ -266,7 +283,7 @@ class Verify:
         """
         type_hints = handler_info['type_hints']
         param_names = handler_info['param_names']
-        casted_args = self.cast_args(event_args, type_hints, param_names)
+        casted_args = self.__cast_args(event_args, type_hints, param_names)
 
         if isinstance(casted_args, list):
             result = handler(*casted_args)
@@ -275,10 +292,11 @@ class Verify:
         else:
             result = handler(casted_args)
 
+        if not result:
+            return None
         return self.__format_result(result)
 
-    @staticmethod
-    def __format_result(result: List[Any]) -> str:
+    def __format_result(self, result: List[Any]) -> str:
         """
         Formats the result of an event core.
 
@@ -297,6 +315,19 @@ class Verify:
             else:
                 formatted_result.append(str(item))
         return ','.join(formatted_result)
+
+    @lru_cache(maxsize=128)
+    def __get_handler(self, event_name: str) -> Callable:
+        """
+        Retrieves or caches handler callable.
+
+        Args:
+            event_name (str): The event name which correspond to a callable.
+
+        Returns:
+            Callable: The handler function.
+        """
+        return self.event_mapper.event_map.get(event_name)
 
     @lru_cache(maxsize=128)
     def __get_handler_info(self, handler: Callable) -> Dict[str, Any]:
@@ -320,9 +351,8 @@ class Verify:
             }
         return self.__m_handler_info_cache[handler]
 
-    @staticmethod
     @lru_cache(maxsize=128)
-    def _get_type_hints(func: Callable) -> Dict[str, type]:
+    def _get_type_hints(self, func: Callable) -> Dict[str, type]:
         """
         Retrieves type hints for a given function, using caching for efficiency.
 

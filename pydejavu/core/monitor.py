@@ -1,6 +1,6 @@
 import sys
 import time
-from typing import List, Optional, Any, Callable
+from typing import List, Optional, Any, Callable, Iterator, Dict
 
 from pydejavu.compilation.scala_monitor_compiler import ScalaMonitorCompiler
 from pydejavu.compilation.spec_parser_synthesizer import SpecParserSynthesizer
@@ -144,21 +144,63 @@ class Monitor:
         self.__m_verify.process_event({"name": "#init#", "args": []})
 
     @staticmethod
-    def read_bulk_events(i_trace_file: str, chunk_size: int = 10000):
+    def read_bulk_events_as_dict(i_trace_file: str, chunk_size: int = 10000) -> Iterator[List[Dict[str, Any]]]:
         """
-        Reads a large number of events from a trace file in chunks.
+        Reads a large number of events from a trace file in chunks as dictionaries.
 
         This method uses the FileUtils to read events from the specified trace file. The events
-        are read in chunks to manage memory efficiently.
+        are read in chunks of dictionaries to manage memory efficiently.
 
         Args:
             i_trace_file (str): The path to the trace file.
             chunk_size (int, optional): The number of events to read in each chunk. Defaults to 10000.
 
-        Returns:
-            List[Any]: A list of events read from the file.
+        Yields:
+            Iterator[List[Dict[str, Any]]]: An iterator yielding lists of dictionaries, where each dictionary
+            represents an event with its name and associated arguments.
+
+        Example:
+            Suppose the trace file contains the following rows:
+                event1,arg1,arg2
+                event2,arg1,arg2,arg3
+
+            The method would yield chunks in the following format:
+            [
+                {"name": "event1", "args": ["arg1", "arg2"]},
+                {"name": "event2", "args": ["arg1", "arg2", "arg3"]}
+            ]
         """
-        return FileUtils.read_events_from_file(i_trace_file, chunk_size)
+        return FileUtils.read_events_from_file_as_dict(i_trace_file, chunk_size)
+
+    @staticmethod
+    def read_bulk_events_as_string(i_trace_file: str, chunk_size: int = 10000) -> Iterator[List[str]]:
+        """
+        Reads a large number of events from a trace file in chunks as strings.
+
+        This method uses the FileUtils to read events from the specified trace file. The events
+        are read in chunks of strings to manage memory efficiently, with each chunk being a list
+        of strings, where each string represents a single row from the trace file.
+
+        Args:
+            i_trace_file (str): The path to the trace file.
+            chunk_size (int, optional): The number of events to read in each chunk. Defaults to 10000.
+
+        Yields:
+            Iterator[List[str]]: An iterator yielding lists of strings, where each string represents
+            a single row from the trace file.
+
+        Example:
+            Suppose the trace file contains the following rows:
+                event1,arg1,arg2
+                event2,arg1,arg2,arg3
+
+            The method would yield chunks in the following format:
+            [
+                "event1,arg1,arg2",
+                "event2,arg1,arg2,arg3"
+            ]
+        """
+        return FileUtils.read_events_from_file_as_string(i_trace_file, chunk_size)
 
     def operational(self, event_name: str) -> Callable:
         """
