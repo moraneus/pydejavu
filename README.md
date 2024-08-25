@@ -355,22 +355,26 @@ Define Python functions to handle the events specified in your logic.
 These handlers perform real-time operations on the events, such as arithmetic calculations, string manipulations, 
 or state tracking. The handlers are decorated with the `@dejavu.operational("event_name")` decorator, 
 linking them to specific events in your specification.
+This definition is optional; if no handler is defined for a specific event, PyDejaVu will forward the 
+event directly to DejaVu for evaluation. Without any handler definitions, PyDejaVu functions 
+the same as DejaVu without the operational phase.
+
 
 ```python
 y = 0
 last_seen_q = False
 
 # Define operational event handlers
-@dejavu.operational("p")
+@dejavu.operational("p") -> Tuple[str | bool | int, ...]
 def handle_p(arg_x: int):
     global y, last_seen_q
     x_lt_y = arg_x < y
     last_seen_q = False
-    return ["p", arg_x, x_lt_y]
+    return "p", arg_x, x_lt_y
 
 
 @dejavu.operational("q")
-def handle_q(arg_y: int):
+def handle_q(arg_y: int) -> List[str | bool | int]:
     global y, last_seen_q
     y = arg_y
     last_seen_q = True
@@ -390,12 +394,23 @@ It takes an integer argument `arg_x` and uses the global variables `y` and `last
 Similarly, the `@dejavu.operational("q")` decorator links the `handle_q` function to the **"q"** event, 
 ensuring that this function is called when a **"q"** event is encountered.
 
+#### Handlers Returning Values
+Handlers can return one of the following types:
+
+- `Tuple[str | bool | int, ...]`: The first element is the event name, followed by event parameters 
+(which can be strings, integers, or booleans).
+- `List[str | int | bool]`: The first element is the event name, followed by event parameters 
+(which can be strings, integers, or booleans).
+- `None` or no return statement: In this case, PyDejaVu does not forward any event to the declarative phase, 
+indicating only local computation was performed for later use.
+
 ### Step 6: Process Event Streams
 You can now process streams of events using `PyDejaVu`. 
 For instance, you can read events from a log file in chunks and pass them to the monitor for processing. 
 The monitor will evaluate the events against your specifications.
+
 ```python
-for chunk in dejavu.read_bulk_events('/path/to/trace/file', chunk_size=1000):
+for chunk in dejavu.read_bulk_events_as_dict('/path/to/trace/file', chunk_size=1000):
     results = dejavu.verify.process_events(chunk)
     dejavu.logger.debug(f"Processed chunk of {len(chunk)} events")
     for result in results:
@@ -413,17 +428,32 @@ Alternatively, you can use the `dejavu.verify.process_event(event)` method to pr
 This allows you to handle events as they occur in real-time or in specific scenarios where events are 
 processed one at a time.
 
-🔔 Each event must be a dictionary of type `Dict[str, Any]`. The dictionary should include at least two keys:
+🔔 Each event can be either a dictionary of type `Dict[str, Any]` or a `string`.
+
+If the event is a dictionary, it should include the following two keys:
+
 - `name`: The name of the event.
 - `args`: A list or dictionary containing the arguments associated with the event.
+An example of a dictionary event is: `{'name': 'key', 'args': [arg1, arg2, ...]}`.
 
-An event for example can look as follows: `{'name': 'key', 'args': [arg1, arg2, ...]}`.
+Alternatively, an event can be a string where the event name and arguments are separated by commas
+without spaces. For example: `"event_name,arg1,arg2,..."`
 
-When processing multiple events, you should provide a list of such dictionaries 
-(i.e., `List[Dict[str, Any]]`). 
+When processing multiple events, you should provide a list of such dictionaries or 
+strings (i.e., `List[[Dict[str, Any]]` or `List[str]`).
 This structure ensures that each event is correctly recognized and processed by the `PyDejaVu` verification engine.
 
-A whole monitor examples can be found in the [examples](examples%2Fpydejavu_monitor) folder.
+### Step 7: Finalize The Evaluation
+Since DejaVu cannot detect when the evaluation ends because `PyDejaVu` forwards events asynchronously 
+(the Python part works in an online manner with DejaVu), 
+we must notify DejaVu at the end of the evaluation. 
+Otherwise, the result file might not close properly. To ensure proper termination, 
+call `dejavu.verify.end_eval()` after processing all events.
+
+
+## Examples
+A whole monitor examples can be found either in the [examples](examples%2Fpydejavu_monitor) folder or the
+[experiments](experiments) folder.
 
 ## Output Files
 After each execution of `PyDejaVu`, several output files are generated and stored in designated folders. 
@@ -445,7 +475,8 @@ compiled monitor.
 - `TraceMonitor.scala`: If the specification was synthesized into Scala code, this file will be generated. 
 It represents the synthesized monitor in Scala.
 - `resultFile`: This file contains the results of the original DEJAVU execution, capturing the outcomes of 
-the verification process.
+the verification process. To ensure the `resultFile` is created correctly, 
+notify DejaVu to close the result file by running `dejavu.verify.end_eval()`.
 
 These output files provide a comprehensive overview of each execution, allowing you to analyze and debug the 
 behavior of your specifications in detail.
