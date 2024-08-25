@@ -29,8 +29,10 @@ def handle_q(arg_y: int):
     return ["q", arg_y]
 
 
-for chunk in dejavu.read_bulk_events('/path/to/trace/file', chunk_size=10000):
+for chunk in dejavu.read_bulk_events_as_dict('/path/to/trace/file', chunk_size=10000):
     results = dejavu.verify.process_events(chunk)
     dejavu.logger.debug(f"Processed chunk of {len(chunk)} events")
     for result in results:
         dejavu.logger.debug(str(result))
+
+    dejavu.verify.end_eval()
