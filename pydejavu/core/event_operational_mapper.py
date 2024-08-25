@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Any
+from typing import Callable, Dict, Any, List
 from functools import wraps
 
 from pydejavu.core.shared_state import SharedState
@@ -25,31 +25,19 @@ class EventOperationalMapper:
             callable: The decorator function.
         """
 
-        def decorator(func: Callable):
+        def decorator(func: Callable[..., List[Any]]):
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args, **kwargs) -> List[Any]:
                 self.__m_logger.debug(f"Executing event handler for {event_name}")
-                return func(*args, **kwargs)
+                result = func(*args, **kwargs)
+
+                # Ensure the result is always a list
+                if not isinstance(result, list):
+                    return [result]
+                return result
 
             self.event_map[event_name] = wrapper
             return wrapper
-
-        return decorator
-
-    def shared_var(self, var_name: str):
-        """
-        Decorator for registering shared variables.
-
-        Args:
-            var_name (str): The name of the shared variable.
-
-        Returns:
-            callable: The decorator function.
-        """
-
-        def decorator(func: Callable):
-            self.shared_state.set(var_name, func())
-            return func
 
         return decorator
 
