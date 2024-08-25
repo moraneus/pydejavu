@@ -59,7 +59,7 @@ class TestEndToEndScenarios:
 
         return dejavu
 
-    def test_basic_event_processing(self, dejavu_instance, sample_log_file):
+    def test_basic_event_bulk_as_dict_processing(self, dejavu_instance, sample_log_file):
         expected_results = [
             {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
             {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
@@ -72,7 +72,7 @@ class TestEndToEndScenarios:
         ]
 
         actual_results = []
-        for chunk in dejavu_instance.read_bulk_events(sample_log_file, chunk_size=3):
+        for chunk in dejavu_instance.read_bulk_events_as_dict(sample_log_file, chunk_size=3):
             actual_results.extend(dejavu_instance.verify.process_events(chunk))
 
         assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
@@ -80,7 +80,28 @@ class TestEndToEndScenarios:
         for expected, actual in zip(expected_results, actual_results):
             assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
 
-    def test_p_event_modification(self, dejavu_instance, sample_log_file):
+    def test_basic_event_bulk_as_string_processing(self, dejavu_instance, sample_log_file):
+        expected_results = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,2", "Modified Event": "q,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
+            {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
+            {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"}
+        ]
+
+        actual_results = []
+        for chunk in dejavu_instance.read_bulk_events_as_string(sample_log_file, chunk_size=3):
+            actual_results.extend(dejavu_instance.verify.process_events(chunk))
+
+        assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
+
+        for expected, actual in zip(expected_results, actual_results):
+            assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
+
+    def test_p_event_modification_bulk_events_as_dict(self, dejavu_instance, sample_log_file):
         expected_p_events = [
             {"Original Event": "p,3", "Modified Event": "p,3,false"},
             {"Original Event": "p,7", "Modified Event": "p,7,false"},
@@ -88,7 +109,7 @@ class TestEndToEndScenarios:
         ]
 
         actual_results = []
-        for chunk in dejavu_instance.read_bulk_events(sample_log_file, chunk_size=3):
+        for chunk in dejavu_instance.read_bulk_events_as_dict(sample_log_file, chunk_size=3):
             actual_results.extend(dejavu_instance.verify.process_events(chunk))
 
         actual_p_events = [
@@ -101,11 +122,32 @@ class TestEndToEndScenarios:
         for expected, actual in zip(expected_p_events, actual_p_events):
             assert expected == actual, f"Mismatch in 'p' event results: expected {expected}, got {actual}"
 
-    def test_shared_variable_updates(self, dejavu_instance, sample_log_file):
+    def test_p_event_modification_bulk_events_as_string(self, dejavu_instance, sample_log_file):
+        expected_p_events = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true"}
+        ]
+
+        actual_results = []
+        for chunk in dejavu_instance.read_bulk_events_as_string(sample_log_file, chunk_size=3):
+            actual_results.extend(dejavu_instance.verify.process_events(chunk))
+
+        actual_p_events = [
+            {"Original Event": r["Original Event"], "Modified Event": r["Modified Event"]}
+            for r in actual_results if r["Original Event"].startswith("p")
+        ]
+
+        assert len(actual_p_events) == len(expected_p_events), "Number of 'p' events doesn't match expected"
+
+        for expected, actual in zip(expected_p_events, actual_p_events):
+            assert expected == actual, f"Mismatch in 'p' event results: expected {expected}, got {actual}"
+
+    def test_shared_variable_updates_bulk_events_as_dict(self, dejavu_instance, sample_log_file):
         expected_final_y = 2
         expected_final_last_seen_q = False
 
-        for chunk in dejavu_instance.read_bulk_events(sample_log_file, chunk_size=3):
+        for chunk in dejavu_instance.read_bulk_events_as_dict(sample_log_file, chunk_size=3):
             dejavu_instance.verify.process_events(chunk)
 
         assert dejavu_instance.get_shared(
@@ -118,11 +160,49 @@ class TestEndToEndScenarios:
             f"Final 'last_seen_q' value mismatch: expected {expected_final_last_seen_q}, " \
             f"got {dejavu_instance.get_shared('last_seen_q')}"
 
-    def test_property_evaluations(self, dejavu_instance, complex_log_file):
+    def test_shared_variable_updates_bulk_events_as_string(self, dejavu_instance, sample_log_file):
+        expected_final_y = 2
+        expected_final_last_seen_q = False
+
+        for chunk in dejavu_instance.read_bulk_events_as_string(sample_log_file, chunk_size=3):
+            dejavu_instance.verify.process_events(chunk)
+
+        assert dejavu_instance.get_shared(
+            "y") == expected_final_y, \
+            f"Final 'y' value mismatch: expected {expected_final_y}, " \
+            f"got {dejavu_instance.get_shared('y')}"
+
+        assert dejavu_instance.get_shared(
+            "last_seen_q") == expected_final_last_seen_q, \
+            f"Final 'last_seen_q' value mismatch: expected {expected_final_last_seen_q}, " \
+            f"got {dejavu_instance.get_shared('last_seen_q')}"
+
+    def test_property_evaluations_bulk_events_as_dict(self, dejavu_instance, complex_log_file):
         log_file, events = complex_log_file
 
         actual_results = []
-        for chunk in dejavu_instance.read_bulk_events(log_file, chunk_size=50):
+        for chunk in dejavu_instance.read_bulk_events_as_dict(log_file, chunk_size=50):
+            actual_results.extend(dejavu_instance.verify.process_events(chunk))
+
+        assert len(actual_results) == len(
+            events), f"Number of processed events ({len(actual_results)}) doesn't match expected ({len(events)})"
+
+        for actual, event in zip(actual_results, events):
+            assert actual["Original Event"] == ",".join(map(str, event)), \
+                f"Original event mismatch: expected {','.join(map(str, event))}, got {actual['Original Event']}"
+            assert "example1=" in actual[
+                "Eval result"], f"'example1' not in eval result for event: {actual['Original Event']}"
+            assert "example2=" in actual[
+                "Eval result"], f"'example2' not in eval result for event: {actual['Original Event']}"
+
+        assert dejavu_instance.last_eval("example1") in [True, False], "Invalid final evaluation for 'example1'"
+        assert dejavu_instance.last_eval("example2") in [True, False], "Invalid final evaluation for 'example2'"
+
+    def test_property_evaluations_bulk_events_as_string(self, dejavu_instance, complex_log_file):
+        log_file, events = complex_log_file
+
+        actual_results = []
+        for chunk in dejavu_instance.read_bulk_events_as_string(log_file, chunk_size=50):
             actual_results.extend(dejavu_instance.verify.process_events(chunk))
 
         assert len(actual_results) == len(
@@ -164,11 +244,11 @@ class TestEndToEndScenarios:
         with pytest.raises(TypeError):
             dejavu_instance.verify.process_event(incorrect_type_event)
 
-    def test_complex_scenario(self, dejavu_instance, complex_log_file):
+    def test_complex_scenario_event_bulk_as_dict(self, dejavu_instance, complex_log_file):
         log_file, events = complex_log_file
 
         actual_results = []
-        for chunk in dejavu_instance.read_bulk_events(log_file, chunk_size=100):
+        for chunk in dejavu_instance.read_bulk_events_as_dict(log_file, chunk_size=100):
             actual_results.extend(dejavu_instance.verify.process_events(chunk))
 
         assert len(actual_results) == len(
@@ -192,12 +272,58 @@ class TestEndToEndScenarios:
         print(f"Example1 violations: {example1_violations}")
         print(f"Example2 satisfactions: {example2_satisfactions}")
 
-    def test_performance(self, dejavu_instance, complex_log_file):
+    def test_complex_scenario_event_bulk_as_string(self, dejavu_instance, complex_log_file):
+        log_file, events = complex_log_file
+
+        actual_results = []
+        for chunk in dejavu_instance.read_bulk_events_as_string(log_file, chunk_size=100):
+            actual_results.extend(dejavu_instance.verify.process_events(chunk))
+
+        assert len(actual_results) == len(
+            events), f"Number of processed events ({len(actual_results)}) doesn't match expected ({len(events)})"
+
+        p_count = sum(1 for e in events if e[0] == 'p')
+        q_count = sum(1 for e in events if e[0] == 'q')
+        r_count = sum(1 for e in events if e[0] == 'r')
+
+        actual_p_count = sum(1 for r in actual_results if r["Original Event"].startswith("p"))
+        actual_q_count = sum(1 for r in actual_results if r["Original Event"].startswith("q"))
+        actual_r_count = sum(1 for r in actual_results if r["Original Event"].startswith("r"))
+
+        assert actual_p_count == p_count, f"Mismatch in 'p' event count: expected {p_count}, got {actual_p_count}"
+        assert actual_q_count == q_count, f"Mismatch in 'q' event count: expected {q_count}, got {actual_q_count}"
+        assert actual_r_count == r_count, f"Mismatch in 'r' event count: expected {r_count}, got {actual_r_count}"
+
+        example1_violations = sum(1 for r in actual_results if "example1=false" in r["Eval result"])
+        example2_satisfactions = sum(1 for r in actual_results if "example2=true" in r["Eval result"])
+
+        print(f"Example1 violations: {example1_violations}")
+        print(f"Example2 satisfactions: {example2_satisfactions}")
+
+    def test_performance_bulk_event_as_dict(self, dejavu_instance, complex_log_file):
         log_file, events = complex_log_file
 
         start_time = time.time()
         actual_results = []
-        for chunk in dejavu_instance.read_bulk_events(log_file, chunk_size=200):
+        for chunk in dejavu_instance.read_bulk_events_as_dict(log_file, chunk_size=200):
+            actual_results.extend(dejavu_instance.verify.process_events(chunk))
+        end_time = time.time()
+
+        assert len(actual_results) == len(
+            events), f"Number of processed events ({len(actual_results)}) doesn't match expected ({len(events)})"
+
+        processing_time = end_time - start_time
+        events_per_second = len(events) / processing_time
+
+        print(f"Processed {len(events)} events in {processing_time:.2f} seconds")
+        print(f"Performance: {events_per_second:.2f} events/second")
+
+    def test_performance_bulk_event_as_string(self, dejavu_instance, complex_log_file):
+        log_file, events = complex_log_file
+
+        start_time = time.time()
+        actual_results = []
+        for chunk in dejavu_instance.read_bulk_events_as_string(log_file, chunk_size=200):
             actual_results.extend(dejavu_instance.verify.process_events(chunk))
         end_time = time.time()
 
