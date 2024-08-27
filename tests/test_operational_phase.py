@@ -24,20 +24,20 @@ class TestOperationalPhase:
         prop c: some property c
         """
         with patch('pydejavu.core.monitor.Monitor.init_monitor'):
-            dejavu = Monitor(i_spec=specification)
-            dejavu._Monitor__m_verify = mock_verify
-        return dejavu
+            monitor = Monitor(i_spec=specification)
+            monitor._Monitor__m_verify = mock_verify
+        return monitor
 
     def test_operational_decorator_registration(self, dejavu):
-        @dejavu.operational("p")
+        @dejavu.event("p")
         def handle_p(arg_x: int):
             return ["p", arg_x]
 
-        @dejavu.operational("q")
+        @dejavu.event("q")
         def handle_q(arg_y: int):
             return ["q", arg_y]
 
-        @dejavu.operational("r")
+        @dejavu.event("r")
         def handle_r(arg_z: int):
             return ["r", arg_z * arg_z]
 
@@ -46,7 +46,7 @@ class TestOperationalPhase:
         assert "r" in dejavu.verify.event_mapper.event_map
 
     def test_direct_handler_execution(self, dejavu):
-        @dejavu.operational("p")
+        @dejavu.event("p")
         def handle_p(arg_x: int):
             return ["p", arg_x, arg_x < 5]
 
@@ -57,7 +57,7 @@ class TestOperationalPhase:
         assert wrapped_handler(5) == ["p", 5, False]
 
     def test_process_event_with_handler(self, dejavu):
-        @dejavu.operational("p")
+        @dejavu.event("p")
         def handle_p(arg_x: int):
             return ["p", arg_x, arg_x < 5]
 
@@ -77,7 +77,7 @@ class TestOperationalPhase:
         assert result["Eval result"] == "a=true,b=false,c=true"
 
     def test_process_single_event(self, dejavu):
-        @dejavu.operational("q")
+        @dejavu.event("q")
         def handle_q(arg_y: int):
             return ["q", arg_y]
 
@@ -89,11 +89,11 @@ class TestOperationalPhase:
         assert result_q["Eval result"] == "a=true,b=false,c=true"
 
     def test_process_multiple_events(self, dejavu):
-        @dejavu.operational("p")
+        @dejavu.event("p")
         def handle_p(arg_x: int):
             return ["p", arg_x, arg_x < 5]
 
-        @dejavu.operational("q")
+        @dejavu.event("q")
         def handle_q(arg_y: int):
             return ["q", arg_y]
 
@@ -115,7 +115,7 @@ class TestOperationalPhase:
         assert all(result["Eval result"] == "a=true,b=false,c=true" for result in results)
 
     def test_last_eval_results(self, dejavu):
-        @dejavu.operational("p")
+        @dejavu.event("p")
         def handle_p(arg_x: int):
             return ["p", arg_x]
 
@@ -139,18 +139,18 @@ class TestOperationalPhase:
         assert dejavu.get_shared("test_key") == "updated_value"
 
     def test_complex_event_chain(self, dejavu):
-        @dejavu.operational("start")
+        @dejavu.event("start")
         def handle_start(value: int):
             dejavu.set_shared("counter", value)
             return ["start", value]
 
-        @dejavu.operational("increment")
+        @dejavu.event("increment")
         def handle_increment():
             counter = dejavu.get_shared("counter", 0)
             dejavu.set_shared("counter", counter + 1)
             return ["increment", counter + 1]
 
-        @dejavu.operational("check")
+        @dejavu.event("check")
         def handle_check(threshold: int):
             counter = dejavu.get_shared("counter", 0)
             return ["check", counter, counter > threshold]
@@ -170,7 +170,7 @@ class TestOperationalPhase:
         assert results[3]["Modified Event"] == "check,7,true"
 
     def test_error_handling_in_handler(self, dejavu):
-        @dejavu.operational("divide")
+        @dejavu.event("divide")
         def handle_divide(a: int, b: int):
             return ["divide", a, b, a / b]
 
@@ -185,9 +185,9 @@ class TestOperationalPhase:
 
     def test_multiple_property_evaluation(self, dejavu):
         # Modify the mock monitor's return value
-        dejavu._Monitor__m_verify._Verify__m_monitor.eval.return_value = "a=true,b=false,c=true,d=false,e=true"
+        dejavu._Monitor__m_verify._Verify__m_dejavu_monitor.eval.return_value = "a=true,b=false,c=true,d=false,e=true"
 
-        @dejavu.operational("complex_event")
+        @dejavu.event("complex_event")
         def handle_complex_event(x: int, y: int):
             return ["complex_event", x, y, x > y, x + y > 10]
 
@@ -210,12 +210,12 @@ class TestOperationalPhase:
             dejavu.last_eval("g")
 
     def test_event_with_shared_variable_dependency(self, dejavu):
-        @dejavu.operational("set_threshold")
+        @dejavu.event("set_threshold")
         def handle_set_threshold(value: int):
             dejavu.set_shared("threshold", value)
             return ["set_threshold", value]
 
-        @dejavu.operational("check_value")
+        @dejavu.event("check_value")
         def handle_check_value(value: int):
             threshold = dejavu.get_shared("threshold", 0)
             return ["check_value", value, threshold, value > threshold]
@@ -237,13 +237,13 @@ class TestOperationalPhase:
         assert results[4]["Modified Event"] == "check_value,65,60,true"
 
     def test_nested_event_processing(self, dejavu):
-        @dejavu.operational("outer")
+        @dejavu.event("outer")
         def handle_outer(x: int):
             inner_event = {"name": "inner", "args": [x * 2]}
             inner_result = dejavu.verify.process_event(inner_event)
             return ["outer", x, inner_result["Modified Event"]]
 
-        @dejavu.operational("inner")
+        @dejavu.event("inner")
         def handle_inner(y: int):
             return ["inner", y, y > 10]
 
@@ -255,15 +255,15 @@ class TestOperationalPhase:
         assert result["Eval result"] == "a=true,b=false,c=true"
 
     def test_set_individual_properties(self, dejavu):
-        @dejavu.operational("set_a")
+        @dejavu.event("set_a")
         def handle_set_a(value: bool):
             return ["set_a", value]
 
-        @dejavu.operational("set_b")
+        @dejavu.event("set_b")
         def handle_set_b(value: bool):
             return ["set_b", value]
 
-        mock_monitor = dejavu._Monitor__m_verify._Verify__m_monitor
+        mock_monitor = dejavu._Monitor__m_verify._Verify__m_dejavu_monitor
         mock_monitor.eval.side_effect = [
             "a=true,b=false,c=false",
             "a=true,b=true,c=false"
@@ -288,11 +288,11 @@ class TestOperationalPhase:
 
     def test_complex_check_using_last_eval(self, dejavu):
         # Simulate the initialization that occurs in linkage_monitor
-        mock_monitor = dejavu._Monitor__m_verify._Verify__m_monitor
+        mock_monitor = dejavu._Monitor__m_verify._Verify__m_dejavu_monitor
         mock_monitor.eval.return_value = "a=false,b=false,c=false"
         dejavu.verify.process_event({"name": "#init#", "args": []})
 
-        @dejavu.operational("complex_check")
+        @dejavu.event("complex_check")
         def handle_complex_check():
             a_value = dejavu.last_eval("a")
             b_value = dejavu.last_eval("b")
@@ -324,11 +324,11 @@ class TestOperationalPhase:
 
     def test_complex_check_with_changing_last_eval(self, dejavu):
         # Simulate the initialization that occurs in linkage_monitor
-        mock_monitor = dejavu._Monitor__m_verify._Verify__m_monitor
+        mock_monitor = dejavu._Monitor__m_verify._Verify__m_dejavu_monitor
         mock_monitor.eval.return_value = "a=false,b=false,c=false"
         dejavu.verify.process_event({"name": "#init#", "args": []})
 
-        @dejavu.operational("complex_check")
+        @dejavu.event("complex_check")
         def handle_complex_check():
             a_value = dejavu.last_eval("a")
             b_value = dejavu.last_eval("b")
@@ -337,7 +337,7 @@ class TestOperationalPhase:
             result = (a_value and b_value) or (not c_value)
             return ["complex_check", a_value, b_value, c_value, result]
 
-        mock_monitor = dejavu._Monitor__m_verify._Verify__m_monitor
+        mock_monitor = dejavu._Monitor__m_verify._Verify__m_dejavu_monitor
 
         # First check - where all last evals are initiate to False
         mock_monitor.eval.return_value = "a=true,b=true,c=false"
@@ -357,7 +357,7 @@ class TestOperationalPhase:
         assert result3["Modified Event"] == "complex_check,false,true,true,false"
 
     def test_last_eval_with_undefined_property(self, dejavu):
-        @dejavu.operational("check_undefined")
+        @dejavu.event("check_undefined")
         def handle_check_undefined():
             try:
                 dejavu.last_eval("undefined_property")
@@ -365,7 +365,7 @@ class TestOperationalPhase:
                 return ["check_undefined", "error"]
             return ["check_undefined", "no_error"]
 
-        mock_monitor = dejavu._Monitor__m_verify._Verify__m_monitor
+        mock_monitor = dejavu._Monitor__m_verify._Verify__m_dejavu_monitor
         mock_monitor.eval.return_value = "a=true,b=false,c=false"
 
         event = {"name": "check_undefined", "args": []}

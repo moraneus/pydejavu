@@ -1,5 +1,5 @@
 import pytest
-from pydejavu.core.monitor import Monitor
+from pydejavu.core.monitor import Monitor, event
 import tempfile
 import csv
 import random
@@ -41,28 +41,128 @@ class TestEndToEndScenarios:
         dejavu = Monitor(i_spec=specification, i_bits=20, i_statistics=True)
         dejavu.init_monitor()
 
-        @dejavu.operational("p")
+        @event("p")
         def handle_p(arg_x: int):
             x_lt_y = arg_x < dejavu.get_shared("y", 0)
             dejavu.set_shared("last_seen_q", False)
             return "p", arg_x, x_lt_y
 
-        @dejavu.operational("q")
+        @event("q")
         def handle_q(arg_y: int):
             dejavu.set_shared("y", arg_y)
             dejavu.set_shared("last_seen_q", True)
             return "q", arg_y
 
-        @dejavu.operational("r")
+        @event("r")
         def handle_r(arg_x: int, arg_y: int):
             return ["r", arg_x, arg_y]
 
-        @dejavu.operational("w")
+        @event("w")
         def handle_r(arg_x: int, arg_y: int):
             dejavu.set_shared("x", arg_x)
             dejavu.set_shared("y", arg_y)
 
         return dejavu
+
+    def test_basic_event_one_by_one_as_dict_processing(self, dejavu_instance, sample_log_file):
+        expected_results = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,2", "Modified Event": "q,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
+            {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
+            {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
+        ]
+
+        actual_results = []
+        with open(sample_log_file, "r") as trace:
+            events = trace.read().splitlines()
+            for event in events:
+                event = event.split(',')
+                event_as_dict = {"name": event[0], "args": [int(i) for i in event[1:]]}
+                actual_results.append(dejavu_instance.verify.process_event(event_as_dict))
+
+        assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
+
+        for expected, actual in zip(expected_results, actual_results):
+            assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
+
+    def test_basic_event_one_by_one_as_string_processing(self, dejavu_instance, sample_log_file):
+        expected_results = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,2", "Modified Event": "q,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
+            {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
+            {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
+        ]
+
+        actual_results = []
+        with open(sample_log_file, "r") as trace:
+            events = trace.read().splitlines()
+            for event in events:
+                actual_results.append(dejavu_instance.verify.process_event(event))
+
+        assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
+
+        for expected, actual in zip(expected_results, actual_results):
+            assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
+
+    def test_basic_event_one_by_one_as_dict_processing_using_call(self, dejavu_instance, sample_log_file):
+        expected_results = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,2", "Modified Event": "q,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
+            {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
+            {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
+        ]
+
+        actual_results = []
+        with open(sample_log_file, "r") as trace:
+            events = trace.read().splitlines()
+            for event in events:
+                event = event.split(',')
+                event_as_dict = {"name": event[0], "args": [int(i) for i in event[1:]]}
+                actual_results.append(dejavu_instance.verify(event_as_dict))
+
+        assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
+
+        for expected, actual in zip(expected_results, actual_results):
+            assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
+
+    def test_basic_event_one_by_one_as_string_processing_using_call(self, dejavu_instance, sample_log_file):
+        expected_results = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,2", "Modified Event": "q,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
+            {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
+            {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
+        ]
+
+        actual_results = []
+        with open(sample_log_file, "r") as trace:
+            events = trace.read().splitlines()
+            for event in events:
+                actual_results.append(dejavu_instance.verify.process_event(event))
+
+        assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
+
+        for expected, actual in zip(expected_results, actual_results):
+            assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
 
     def test_basic_event_bulk_as_dict_processing(self, dejavu_instance, sample_log_file):
         expected_results = [
@@ -102,6 +202,50 @@ class TestEndToEndScenarios:
         actual_results = []
         for chunk in dejavu_instance.read_bulk_events_as_string(sample_log_file, chunk_size=3):
             actual_results.extend(dejavu_instance.verify.process_events(chunk))
+
+        assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
+
+        for expected, actual in zip(expected_results, actual_results):
+            assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
+
+    def test_basic_event_bulk_as_dict_processing_using_call(self, dejavu_instance, sample_log_file):
+        expected_results = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,2", "Modified Event": "q,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
+            {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
+            {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
+        ]
+
+        actual_results = []
+        for chunk in dejavu_instance.read_bulk_events_as_dict(sample_log_file, chunk_size=3):
+            actual_results.extend(dejavu_instance.verify(chunk))
+
+        assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
+
+        for expected, actual in zip(expected_results, actual_results):
+            assert expected == actual, f"Mismatch in results: expected {expected}, got {actual}"
+
+    def test_basic_event_bulk_as_string_processing_using_call(self, dejavu_instance, sample_log_file):
+        expected_results = [
+            {"Original Event": "p,3", "Modified Event": "p,3,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,5", "Modified Event": "q,5", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,7", "Modified Event": "p,7,false", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "q,2", "Modified Event": "q,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "p,1", "Modified Event": "p,1,true", "Eval result": "example1=false,example2=false"},
+            {"Original Event": "r,3,5", "Modified Event": "r,3,5", "Eval result": "example1=false,example2=true"},
+            {"Original Event": "r,7,2", "Modified Event": "r,7,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "r,1,2", "Modified Event": "r,1,2", "Eval result": "example1=true,example2=true"},
+            {"Original Event": "w,-1,-2", "Modified Event": "skip", "Eval result": None}
+        ]
+
+        actual_results = []
+        for chunk in dejavu_instance.read_bulk_events_as_string(sample_log_file, chunk_size=3):
+            actual_results.extend(dejavu_instance.verify(chunk))
 
         assert len(actual_results) == len(expected_results), "Number of processed events doesn't match expected"
 
