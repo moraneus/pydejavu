@@ -1,0 +1,53 @@
+name: Python package
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyDejaVu-RV
+
+    - name: Install Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '22'
+
+    - name: Install SDKMAN! and Scala 2.12.18
+      run: |
+        curl -s "https://get.sdkman.io" | bash
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        sdk install scala 2.12.18
+        echo "SCALA_HOME=$HOME/.sdkman/candidates/scala/current" >> $GITHUB_ENV
+        echo "$HOME/.sdkman/candidates/scala/current/bin" >> $GITHUB_PATH
+
+    - name: Verify Scala installation
+      run: |
+        scalac -version  # Check if Scala is installed correctly and available
+
+    - name: Execute Test
+      run: |
+        cp -R experiments/example_2 /tmp
+        cd /tmp/example_2
+        python3 example_2_pre_eval.py --bits 20 --logfile log_10K.csv

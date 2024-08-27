@@ -1,8 +1,9 @@
 import argparse
+import logging
 import time
-from typing import List, Any, Tuple
+from typing import Tuple, Union
 
-from pydejavu.core.monitor import Monitor
+from pydejavu.core.monitor import Monitor, event
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -44,17 +45,35 @@ def initialize_monitor(bits: int, specification: str, stat: bool) -> Monitor:
     Returns:
         Monitor: An initialized instance of the Dejavu Monitor.
     """
-    dejavu = Monitor(i_spec=specification, i_bits=bits, i_statistics=stat)
-    dejavu.init_monitor()
-    return dejavu
+    monitor = Monitor(i_spec=specification, i_bits=bits, i_statistics=stat, i_logging_level=logging.ERROR)
+    monitor.init_monitor()
+    return monitor
 
 
 def setup_event_handlers(dejavu: Monitor):
     """Define and register event handlers for the Dejavu monitor."""
 
-    @dejavu.operational("p")
-    def handle_p(arg_x: int) -> Tuple[str | bool | int, ...]:
-        return "p", arg_x, arg_x > 7
+    y = 0
+    last_seen_q = False
+
+    @event("p")
+    def handle_p(arg_x: int) -> Tuple[Union[str, int, bool], ...]:
+        nonlocal y, last_seen_q
+        x_lt_y = last_seen_q and arg_x < y
+        last_seen_q = False
+        return "p_q", arg_x, x_lt_y
+
+    @event("q")
+    def handle_q(arg_y: int) -> None:
+        nonlocal y, last_seen_q
+        y = arg_y
+        last_seen_q = True
+
+    @event("r")
+    def handle_q(arg_x: int, arg_y: int) -> Tuple[Union[str, int], ...]:
+        nonlocal last_seen_q
+        last_seen_q = False
+        return "r", arg_x, arg_y
 
 
 def process_events(dejavu: Monitor, filename: str) -> None:
@@ -71,7 +90,7 @@ def process_events(dejavu: Monitor, filename: str) -> None:
     start_time = time.time()  # Start the timer
     try:
         for chunk in dejavu.read_bulk_events_as_string(filename, chunk_size=1000):
-            results = dejavu.verify.process_events(chunk)
+            results = dejavu.verify(chunk)
             dejavu.logger.debug(f"Processed chunk of {len(chunk)} events")
             for result in results:
                 dejavu.logger.debug(str(result))
@@ -93,17 +112,17 @@ def main() -> None:
 
     # Define the Dejavu specification
     specification = """
-    prop modified: forall x . ((p(x, "true") -> exists y . @ q(x, y)))
+    prop modified: forall x . forall y . (( p_q(x, "true")) -> P r(x, y))
     """
 
     # Initialize the Dejavu monitor
-    dejavu = initialize_monitor(args.bits, specification, args.stat)
+    monitor = initialize_monitor(args.bits, specification, args.stat)
 
     # Setup event handlers
-    setup_event_handlers(dejavu)
+    setup_event_handlers(monitor)
 
     # Process events from the specified logfile
-    process_events(dejavu, args.logfile)
+    process_events(monitor, args.logfile)
 
 
 if __name__ == "__main__":
