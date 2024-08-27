@@ -1,9 +1,9 @@
-from pydejavu.core.monitor import Monitor
+from pydejavu.core.monitor import Monitor, event
 
-dejavu = Monitor(i_bits=20, i_statistics=True)
+monitor = Monitor(i_bits=20, i_statistics=True)
 
 # Link the monitor directly to the pre-compiled JAR file
-dejavu.linkage_monitor('/path/to/TraceMonitor.jar')
+monitor.linkage_monitor('/path/to/TraceMonitor.jar')
 
 
 y = 0
@@ -11,7 +11,7 @@ last_seen_q = False
 
 
 # Define operational event handlers
-@dejavu.operational("p")
+@event("p")
 def handle_p(arg_x: int):
     global y, last_seen_q
     x_lt_y = arg_x < y
@@ -19,7 +19,7 @@ def handle_p(arg_x: int):
     return ["p", arg_x, x_lt_y]
 
 
-@dejavu.operational("q")
+@event("q")
 def handle_q(arg_y: int):
     global y, last_seen_q
     y = arg_y
@@ -27,10 +27,10 @@ def handle_q(arg_y: int):
     return ["q", arg_y]
 
 
-for chunk in dejavu.read_bulk_events_as_dict('/path/to/trace/file', chunk_size=10000):
-    results = dejavu.verify.process_events(chunk)
-    dejavu.logger.debug(f"Processed chunk of {len(chunk)} events")
+for chunk in monitor.read_bulk_events_as_dict('/path/to/trace/file', chunk_size=10000):
+    results = monitor.verify(chunk)
+    monitor.logger.debug(f"Processed chunk of {len(chunk)} events")
     for result in results:
-        dejavu.logger.debug(str(result))
+        monitor.logger.debug(str(result))
 
-    dejavu.verify.end_eval()
+    monitor.verify.end_eval()
