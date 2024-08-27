@@ -1,6 +1,7 @@
+import logging
 import sys
 import time
-from typing import List, Optional, Any, Callable, Iterator, Dict
+from typing import List, Optional, Any, Callable, Iterator, Dict, Tuple
 
 from pydejavu.compilation.scala_monitor_compiler import ScalaMonitorCompiler
 from pydejavu.compilation.spec_parser_synthesizer import SpecParserSynthesizer
@@ -12,41 +13,82 @@ from pydejavu.utils.logger import Logger
 
 class Monitor:
     """
-    A class for initializing and managing a DejaVu runtime monitor.
+    A singleton class for initializing and managing a DejaVu runtime monitor.
 
     This class handles the creation, synthesis, compilation, and linkage of runtime monitors
     based on the provided specifications. It also offers methods to handle events and manage
     shared variables in the runtime environment.
 
     Attributes:
+        __instance (Monitor): The single instance of the Monitor class.
         __m_verify (Verify): The Verify object used for handling events and shared variables.
         __m_logger (Logger): The logger instance used for logging within the class.
-
-    Args:
-        i_spec (str, optional): The specification to be used for the monitor. Defaults to None.
-        i_bits (int, optional): The number of bits used in verification. Defaults to 20.
-        i_mode (optional): The mode of operation. Defaults to None.
-        i_statistics (bool, optional): Whether to collect statistics. Defaults to False.
-        i_logger (Logger, optional): A custom logger instance. Defaults to None.
+        __pending_event_handlers (List[Tuple[str, Callable]]): List of events to be registered upon initialization.
     """
 
-    def __init__(self, i_spec: str = None, i_bits: int = 20, i_mode=None, i_statistics=False, i_logger: Logger = None):
+    __instance: Optional['Monitor'] = None  # Define the class-level instance attribute
+    __pending_event_handlers: List[Tuple[str, Callable]] = []  # Store pending event handlers
+
+    def __new__(cls, *args, **kwargs):
+        if not cls.__instance:
+            cls.__instance = super(Monitor, cls).__new__(cls)
+            cls.__instance.__initialized = False
+        return cls.__instance
+
+    def __init__(
+            self,
+            i_spec: str = None,
+            i_bits: int = 20,
+            i_mode=None,
+            i_statistics=False,
+            i_logging_level: int = logging.INFO):
         """
-        Initializes the PyDejaVu instance with the given parameters.
+        Initializes the Monitor instance with the given parameters.
 
         Args:
             i_spec (str, optional): The specification to be used for the monitor. Defaults to None.
             i_bits (int, optional): The number of bits used in verification. Defaults to 20.
             i_mode (optional): The mode of operation. Defaults to None.
             i_statistics (bool, optional): Whether to collect statistics. Defaults to False.
-            i_logger (Logger, optional): A custom logger instance. Defaults to None.
+            i_logging_level (int): The logging level. Defaults to INFO level.
         """
-        self.__m_logger = Logger(i_name=__name__) if i_logger is None else i_logger
+        if self.__initialized:
+            return
+        self.__m_logger = Logger(i_logging_level=i_logging_level)
         self.__m_spec = i_spec
         self.__m_bits = i_bits
         self.__m_mode = i_mode
         self.__m_statistics = i_statistics
         self.__m_verify: Optional[Verify] = None
+
+        # Register all pending events after initialization
+        for event_name, func in self.__pending_event_handlers:
+            self.register_event(event_name, func)
+        self.__pending_event_handlers.clear()  # Clear pending events after registration
+        self.__initialized = True
+
+    @staticmethod
+    def get_instance() -> 'Monitor':
+        """
+        Static method to get the singleton instance of the Monitor class.
+
+        Returns:
+            Monitor: The single instance of the Monitor class.
+        """
+        if Monitor.__instance is None:
+            Monitor.__instance = Monitor()  # Create a new instance if it doesn't exist
+        return Monitor.__instance
+
+    @staticmethod
+    def add_pending_event_handler(event_handler: Tuple[str, Callable]):
+        """
+        Static method to get the list of all pending events for registration.
+
+        Args:
+            event_handler (Tuple[str, Callable]): The pending event handler for registration.
+        """
+        Monitor.__pending_event_handlers.append(event_handler)
+
 
     @property
     def verify(self) -> Verify:
@@ -124,7 +166,7 @@ class Monitor:
 
     def linkage_monitor(self, compile_jar_monitor: str) -> None:
         """
-        Links the compiled monitor to the runtime environment.
+        Links the compiled dejavu_monitor to the runtime environment.
 
         This method initializes a LinkageMonitor with the compiled JAR file and sets up the
         verification environment.
@@ -132,9 +174,9 @@ class Monitor:
         Args:
             compile_jar_monitor (str): The path to the compiled JAR file.
         """
-        monitor = LinkageMonitor(compile_jar_monitor)
+        dejavu_monitor = LinkageMonitor(compile_jar_monitor)
         self.__m_verify = Verify(
-            monitor.monitor,
+            dejavu_monitor.monitor,
             i_bits=self.__m_bits,
             i_mode=self.__m_mode,
             i_statistics=self.__m_statistics)
@@ -158,17 +200,6 @@ class Monitor:
         Yields:
             Iterator[List[Dict[str, Any]]]: An iterator yielding lists of dictionaries, where each dictionary
             represents an event with its name and associated arguments.
-
-        Example:
-            Suppose the trace file contains the following rows:
-                event1,arg1,arg2
-                event2,arg1,arg2,arg3
-
-            The method would yield chunks in the following format:
-            [
-                {"name": "event1", "args": ["arg1", "arg2"]},
-                {"name": "event2", "args": ["arg1", "arg2", "arg3"]}
-            ]
         """
         return FileUtils.read_events_from_file_as_dict(i_trace_file, chunk_size)
 
@@ -188,34 +219,52 @@ class Monitor:
         Yields:
             Iterator[List[str]]: An iterator yielding lists of strings, where each string represents
             a single row from the trace file.
-
-        Example:
-            Suppose the trace file contains the following rows:
-                event1,arg1,arg2
-                event2,arg1,arg2,arg3
-
-            The method would yield chunks in the following format:
-            [
-                "event1,arg1,arg2",
-                "event2,arg1,arg2,arg3"
-            ]
         """
         return FileUtils.read_events_from_file_as_string(i_trace_file, chunk_size)
 
-    def operational(self, event_name: str) -> Callable:
+    def __is_initialized(self) -> bool:
         """
-        Creates a handler function for the specified event.
+        Checks if the monitor is initialized.
 
-        This method returns a callable that can be used to handle the event with the given name
-        during the runtime.
+        Returns:
+            bool: True if initialized, False otherwise.
+        """
+        return self.__initialized
+
+    @classmethod
+    def event(cls, event_name: str) -> Callable:
+        """
+        A class method decorator to register an event handler with the monitor.
+
+        If the monitor is initialized, it registers the event handler immediately.
+        Otherwise, it stores the handler to be registered later when the monitor is initialized.
 
         Args:
             event_name (str): The name of the event to handle.
 
         Returns:
-            Callable: A function to handle the specified event.
+            Callable: The decorator function that registers the event handler.
         """
-        return self.__m_verify.event(event_name)
+
+        def decorator(func: Callable):
+            instance = cls.__instance
+            if instance and instance.__is_initialized():
+                instance.register_event(event_name, func)
+            else:
+                cls.__pending_event_handlers.append((event_name, func))  # Store event handler for later
+            return func
+
+        return decorator
+
+    def register_event(self, event_name: str, func: Callable):
+        """
+        Registers an event handler with the Verify object.
+
+        Args:
+            event_name (str): The name of the event to handle.
+            func (Callable): The function to handle the event.
+        """
+        self.__m_verify.event(event_name)(func)
 
     def get_shared(self, key: str, default: Any = None) -> Any:
         """
@@ -257,7 +306,6 @@ class Monitor:
             KeyError: If the property name is not defined in the shared variables.
             SystemExit: If the property name is not found, the program will exit after logging the error.
         """
-
         verdict = self.get_shared(f"#last_eval_{spec_name}#", None)
 
         if verdict is None:
@@ -270,3 +318,29 @@ class Monitor:
             sys.exit(f"Exiting program due to undefined property '{spec_name}' name.")
 
         return verdict
+
+
+# Define the global event function
+def event(event_name: str) -> Callable:
+    """
+    A global decorator function to register an event handler with the monitor.
+
+    If the monitor is initialized, it registers the event handler immediately.
+    Otherwise, it stores the handler to be registered later when the monitor is initialized.
+
+    Args:
+        event_name (str): The name of the event to handle.
+
+    Returns:
+        Callable: The decorator function that registers the event handler.
+    """
+    monitor_instance = Monitor.get_instance()
+
+    def decorator(func: Callable):
+        if monitor_instance:
+            monitor_instance.register_event(event_name, func)
+        else:
+            Monitor.add_pending_event_handler((event_name, func))  # Store event handler for later
+        return func
+
+    return decorator

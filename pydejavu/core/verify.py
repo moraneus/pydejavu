@@ -1,7 +1,7 @@
 import inspect
 import logging
 
-from typing import Any, Dict, List, Optional, Callable, get_type_hints
+from typing import Any, Dict, List, Optional, Callable, get_type_hints, Union
 from functools import lru_cache
 
 from pydejavu.core.event_operational_mapper import EventOperationalMapper
@@ -20,7 +20,7 @@ class Verify:
 
     def __init__(
             self,
-            monitor: Any,
+            i_dejavu_monitor: Any,
             i_bits: int = 20,
             i_mode: Optional[str] = None,
             i_statistics: bool = True,
@@ -30,7 +30,7 @@ class Verify:
         Initializes the Verify instance with the provided monitor and configuration.
 
         Args:
-            monitor (Any): The monitoring system instance to interact with.
+            i_dejavu_monitor (Any): The dejavu monitoring system instance to interact with.
             i_bits (int, optional): The number of bits for configuration. Defaults to 20.
             i_mode (Optional[str], optional): The mode of operation. Defaults to None.
             i_statistics (bool, optional): Flag to enable or disable statistics. Defaults to True.
@@ -38,10 +38,32 @@ class Verify:
         """
 
         self.__m_logger = Logger(i_name=__name__) if i_logger is None else i_logger
-        self.__m_monitor = monitor
+        self.__m_dejavu_monitor = i_dejavu_monitor
         self.__monitor_setup(i_bits, i_mode, i_statistics)
         self.event_mapper = EventOperationalMapper()
         self.__m_handler_info_cache: Dict[Callable, Dict[str, Any]] = {}
+
+    def __call__(self, input_data: Union[Dict[str, Any], str, List[Dict[str, Any]], List[str]]) -> \
+            Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """
+        Process either a single event or multiple events based on the input type.
+
+        Args:
+            input_data (Union[Dict[str, Any], str, List[Dict[str, Any]], List[str]]):
+                Either a single event (as a dict or string) or a list of events.
+
+        Returns:
+            Union[Dict[str, Any], List[Dict[str, Any]]]: The result(s) of processing the event(s).
+
+        Raises:
+            ValueError: If the input_data is not in the expected format.
+        """
+        if isinstance(input_data, (dict, str)):
+            return self.process_event(input_data)
+        elif isinstance(input_data, list):
+            return self.process_events(input_data)
+        else:
+            raise ValueError("Input must be either a single event (dict or string) or a list of events.")
 
     def event(self, event_name: str) -> Callable:
         """
@@ -120,7 +142,7 @@ class Verify:
                 modified_eval_input = origin_eval_input
 
         try:
-            eval_result = self.__m_monitor.eval(modified_eval_input)
+            eval_result = self.__m_dejavu_monitor.eval(modified_eval_input)
             self.__update_last_eval(eval_result)
         except Exception as e:
             self.__m_logger.error(f"Error in eval for event {event_name}: {str(e)}")
@@ -168,7 +190,7 @@ class Verify:
         return [self.process_event(event) for event in events]
 
     def end_eval(self):
-        self.__m_monitor.end_eval()
+        self.__m_dejavu_monitor.end_eval()
 
     def __monitor_setup(
             self,
@@ -184,7 +206,7 @@ class Verify:
             i_mode (Optional[str], optional): The mode of operation. Defaults to "debug".
             i_statistics (bool, optional): Flag to enable or disable statistics. Defaults to True.
         """
-        self.__m_monitor.config(str(i_bits), str(i_mode), str(i_statistics), "output/resultFile")
+        self.__m_dejavu_monitor.config(str(i_bits), str(i_mode), str(i_statistics), "output/resultFile")
 
     def format_args(self, args: Dict | List | Any) -> str:
         """
