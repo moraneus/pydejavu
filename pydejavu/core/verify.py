@@ -1,7 +1,7 @@
 import inspect
 import logging
 
-from typing import Any, Dict, List, Optional, Callable, get_type_hints, Union
+from typing import Any, Dict, List, Optional, Callable, get_type_hints, Union, Tuple
 from functools import lru_cache
 
 from pydejavu.core.event_operational_mapper import EventOperationalMapper
@@ -100,12 +100,12 @@ class Verify:
         """
         self.event_mapper.set_shared(key, value)
 
-    def process_event(self, event: Dict[str, Any] | str) -> Dict[str, Any]:
+    def process_event(self, event: Union[Dict[str, Any], str]) -> Dict[str, Any]:
         """
         Processes a single event and evaluates it using the monitor.
 
         Args:
-            event (Dict[str, Any] | str): The event data, which can be either a dictionary
+            event (Union[Dict[str, Any], str]): The event data, which can be either a dictionary
             containing 'name' and 'args', or a string formatted as 'event_name,arg1,arg2,...'.
 
         Returns:
@@ -154,12 +154,12 @@ class Verify:
             "Eval result": eval_result
         }
 
-    def _parse_event(self, event: Dict[str, Any] | str) -> tuple[str, List[Any], str]:
+    def _parse_event(self, event: Union[Dict[str, Any], str]) -> Tuple[str, List[Any], str]:
         """
         Parses the input event into event name, arguments, and original eval input.
 
         Args:
-            event (Dict[str, Any] | str): The event data to parse.
+            event (Union[Dict[str, Any], str]): The event data to parse.
 
         Returns:
             tuple[str, List[Any], str]: A tuple containing the event name, list of arguments,
@@ -177,12 +177,12 @@ class Verify:
 
         return event_name, event_args, origin_eval_input
 
-    def process_events(self, events: List[Dict[str, Any]] | List[str]) -> List[Dict[str, Any]]:
+    def process_events(self, events: Union[List[Dict[str, Any]], List[str]]) -> List[Dict[str, Any]]:
         """
         Processes a list of events and evaluates each one.
 
         Args:
-            events (List[Dict[str, Any]] | List[str]): A list of event data.
+            events (Union[List[Dict[str, Any]], List[str]]): A list of event data.
 
         Returns:
             List[Dict[str, Any]]: A list of results from processing and evaluating each event.
@@ -208,12 +208,12 @@ class Verify:
         """
         self.__m_dejavu_monitor.config(str(i_bits), str(i_mode), str(i_statistics), "output/resultFile")
 
-    def format_args(self, args: Dict | List | Any) -> str:
+    def format_args(self, args: Union[Dict, List, Any]) -> str:
         """
         Formats arguments into a string representation.
 
         Args:
-            args (Dict | List | Any): The arguments to format.
+            args (Union[Dict, List, Any]): The arguments to format.
 
         Returns:
             str: The formatted arguments as a string.
@@ -252,17 +252,17 @@ class Verify:
 
     def __cast_args(
             self,
-            args: List | Dict | Any,
+            args: Union[Dict, List, Any],
             type_hints: Dict[str, type],
-            param_names: List[str]) -> List | Dict | Any:
+            param_names: List[str]) -> Union[Dict, List, Any]:
         """
         Casts arguments to their respective types based on provided type hints and parameter names.
         Args:
-            args (List | Dict | Any): The arguments to cast.
+            args (Union[Dict, List, Any]): The arguments to cast.
             type_hints (Dict[str, type]): A dictionary of type hints.
             param_names (List[str]): List of parameter names from the handler function.
         Returns:
-            List | Dict | Any: The casted arguments.
+            Union[Dict, List, Any]: The casted arguments.
         """
         if isinstance(args, list):
             return [self.cast_value(arg, type_hints.get(param_names[i], Any)) if i < len(param_names) else arg

@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Any, List, Tuple, Optional
+from typing import Callable, Dict, Any, List, Tuple, Optional, Union
 from functools import wraps
 
 from pydejavu.core.shared_state import SharedState
@@ -25,9 +25,9 @@ class EventOperationalMapper:
             callable: The decorator function.
         """
 
-        def decorator(func: Callable[..., Optional[Tuple[str, ...] | List[str | int | bool] | None]]):
+        def decorator(func: Callable[..., Optional[Union[Tuple[str, ...], List[Union[str, int, bool]], None]]]):
             @wraps(func)
-            def wrapper(*args, **kwargs) -> Optional[Tuple[str, ...] | List[str | int | bool] | None]:
+            def wrapper(*args, **kwargs) -> Optional[Union[Tuple[str, ...], List[Union[str, int, bool]], None]]:
                 self.__m_logger.debug(f"Executing event handler for {event_name}")
                 result = func(*args, **kwargs)
 
