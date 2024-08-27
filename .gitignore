@@ -15,6 +15,7 @@ META_INF
 *log_5M.csv
 result-spec-*
 *.class
+path/
 
 # PYTHON
 ########
@@ -182,3 +183,4 @@ cython_debug/
 output
 .DS_Store
 logs/
+generated_script.py
