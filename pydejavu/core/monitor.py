@@ -1,14 +1,17 @@
+import argparse
 import logging
+import subprocess
 import sys
 import time
 from typing import List, Optional, Any, Callable, Iterator, Dict, Tuple
 
 from pydejavu.compilation.scala_monitor_compiler import ScalaMonitorCompiler
 from pydejavu.compilation.spec_parser_synthesizer import SpecParserSynthesizer
-from pydejavu.utils.files_utils import FileUtils
 from pydejavu.jni.linkage_monitor import LinkageMonitor
 from pydejavu.core.verify import Verify
+from pydejavu.utils.file_utils import FileUtils
 from pydejavu.utils.logger import Logger
+from pydejavu.utils.monitor_generator import MonitorGenerator
 
 
 class Monitor:
@@ -88,7 +91,6 @@ class Monitor:
             event_handler (Tuple[str, Callable]): The pending event handler for registration.
         """
         Monitor.__pending_event_handlers.append(event_handler)
-
 
     @property
     def verify(self) -> Verify:
@@ -344,3 +346,41 @@ def event(event_name: str) -> Callable:
         return func
 
     return decorator
+
+
+def execute_python_script(script_path):
+    try:
+        result = subprocess.run(['python3', script_path], check=True, capture_output=True, text=True)
+        print("Script executed successfully.")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("An error occurred while executing the script:")
+        print(e.stderr)
+
+
+def main():
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(description='Generate and execute a Python script for PyDejaVu')
+    parser.add_argument('--bits', type=int, default=20, help='Number of bits for the monitor (default: 16)')
+    parser.add_argument('--stats', type=bool, default=False, help='Enable or disable statistics (default: False)')
+    parser.add_argument('--qtl', type=str, required=True, help='Path to the QTL file')
+    parser.add_argument('--operational', type=str, required=False, help='Path to the operational event handler file')
+    parser.add_argument('--trace', type=str, required=True, help='Path to the trace file')
+
+    args = parser.parse_args()
+
+    # Generate the Python script based on the input files and parameters
+    generated_script_path = MonitorGenerator.generate_python_script(
+        qtl_path=args.qtl,
+        pqtl_path=args.operational,
+        trace_path=args.trace,
+        bits=args.bits,
+        stats=args.stats
+    )
+
+    # Execute the generated Python script
+    execute_python_script(generated_script_path)
+
+
+if __name__ == '__main__':
+    main()
