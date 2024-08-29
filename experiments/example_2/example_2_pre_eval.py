@@ -4,6 +4,7 @@ import time
 from typing import Tuple, Union
 
 from pydejavu.core.monitor import Monitor, event
+from pydejavu.utils.benchmark_util import gtime
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -46,22 +47,28 @@ def initialize_monitor(bits: int, specification: str, stat: bool) -> Monitor:
         Monitor: An initialized instance of the Dejavu Monitor.
     """
     monitor = Monitor(i_spec=specification, i_bits=bits, i_statistics=stat, i_logging_level=logging.ERROR)
-    monitor.init_monitor()
+
+    # We comment the init_monitor() function for experiments purpose
+    # monitor.init_monitor()
+
+    # Due to the need to make minimum action for the experiments,
+    # We used already compiled monitor
+    monitor.linkage_monitor("example_2_trace_monitor.jar")
     return monitor
 
 
 def setup_event_handlers(dejavu: Monitor):
     """Define and register event handlers for the Dejavu monitor."""
 
-    y = 0
     last_seen_q = False
+    y = 0
 
     @event("p")
     def handle_p(arg_x: int) -> Tuple[Union[str, int, bool], ...]:
         nonlocal y, last_seen_q
         x_lt_y = last_seen_q and arg_x < y
         last_seen_q = False
-        return "p_q", arg_x, x_lt_y
+        return "p_q", arg_x, y, x_lt_y
 
     @event("q")
     def handle_q(arg_y: int) -> None:
@@ -76,11 +83,12 @@ def setup_event_handlers(dejavu: Monitor):
         return "r", arg_x, arg_y
 
 
-def process_events(dejavu: Monitor, filename: str) -> None:
+@gtime
+def process_events(monitor: Monitor, filename: str) -> None:
     """Process events from the specified CSV file using the Dejavu monitor.
 
     Args:
-        dejavu (Monitor): The initialized Dejavu monitor instance.
+        monitor (Monitor): The initialized Dejavu monitor instance.
         filename (str): The path to the CSV file containing events.
 
     Raises:
@@ -89,20 +97,16 @@ def process_events(dejavu: Monitor, filename: str) -> None:
     """
     start_time = time.time()  # Start the timer
     try:
-        for chunk in dejavu.read_bulk_events_as_string(filename, chunk_size=1000):
-            results = dejavu.verify(chunk)
-            dejavu.logger.debug(f"Processed chunk of {len(chunk)} events")
+        for chunk in monitor.read_bulk_events_as_string(filename, chunk_size=10000):
+            results = monitor.verify(chunk)
+            monitor.logger.debug(f"Processed chunk of {len(chunk)} events")
             for result in results:
-                dejavu.logger.debug(str(result))
-        dejavu.verify.end_eval()
+                monitor.logger.debug(str(result))
+        monitor.verify.end_eval()
     except FileNotFoundError:
         print(f"Error: File {filename} not found.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-    finally:
-        end_time = time.time()  # End the timer
-        elapsed_time = end_time - start_time
-        print(f"Time taken to process events: {elapsed_time:.3f} seconds")
 
 
 def main() -> None:
@@ -112,7 +116,7 @@ def main() -> None:
 
     # Define the Dejavu specification
     specification = """
-    prop modified: forall x . forall y . (( p_q(x, "true")) -> P r(x, y))
+    prop origin1: forall x . forall y . (p_q(x, y, "true") -> P r(x, y))
     """
 
     # Initialize the Dejavu monitor

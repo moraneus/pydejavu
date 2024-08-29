@@ -6,7 +6,7 @@ class MonitorGenerator:
 
     PYTHON_SCRIPT_TEMPLATE = """
 import logging
-from pydejavu.core.monitor import Monitor, event
+from pydejavu.core.monitor import Monitor, event, parser
 
 # Read the specification
 specification = \"\"\"{specification}\"\"\"

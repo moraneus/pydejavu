@@ -66,7 +66,7 @@ You will also need [Poetry](https://python-poetry.org/) for managing dependencie
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/pydejavu.git
+git clone https://github.com/moraneus/pydejavu.git
 cd pydejavu
 ```
 
@@ -317,11 +317,11 @@ This file is required to perform the verification process.
 
 #### Example
 ```bash
-python3 -m pydejavu --bits 20 --stats true --qtl /path/to/spec.qtl --pqtl /path/to/events.pqtl --trace /path/to/trace.log
+python3 -m pydejavu --bits 20 --stats true --qtl /path/to/spec.qtl --operational /path/to/events.pqtl --trace /path/to/trace.log
 ```
 
 This command initializes the monitor with 20 bits, enables statistics, 
-and uses the specified QTL, PQTL, and trace files for runtime verification.
+and uses the specified qtl, operational, and trace files for runtime verification.
 
 
 ### Python Module Usage

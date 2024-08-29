@@ -1,4 +1,5 @@
 import argparse
+import logging
 import time
 from pydejavu.core.monitor import Monitor
 
@@ -42,7 +43,7 @@ def initialize_monitor(bits: int, specification: str, stat: bool) -> Monitor:
     Returns:
         Monitor: An initialized instance of the Dejavu Monitor.
     """
-    dejavu = Monitor(i_spec=specification, i_bits=bits, i_statistics=stat)
+    dejavu = Monitor(i_spec=specification, i_bits=bits, i_statistics=stat, i_logging_level=logging.ERROR)
     dejavu.init_monitor()
     return dejavu
 
@@ -92,7 +93,7 @@ def main() -> None:
 
     # Define the Dejavu specification
     specification = """
-    prop origin: forall x . ((p(x) & x > 7) -> exists y . @ q(x, y)) 
+    prop origin: forall x . forall y . ((p(x) & @q(y) & x < y) -> P r(x, y))
     """
 
     # Initialize the Dejavu monitor
