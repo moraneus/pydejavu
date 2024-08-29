@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyDejaVu-RV"
-version = "0.5.0"
+version = "0.5.1"
 description = "PyDejaVu is a Python implementation that wraps the original DejaVu jar file, providing a bridge between Python and the Java-based DejaVu runtime verification tool. This wrapper extends DejaVu's functionality by supporting a 2-phase monitoring approach."
 authors = ["moraneus <moraneus@gmail.com>"]
 license = "Apache License 2.0"
@@ -39,6 +39,7 @@ pyjnius = "1.6.1"
 pytest = "^8.3.2"
 pytest-xdist = "^3.6.1"
 pytest-forked = "^1.6.0"
+psutil = "^6.0.0"
 
 [tool.poetry.scripts]
 pydejavu = "pydejavu.core.monitor:main"
