@@ -71,12 +71,15 @@ cd pydejavu
 ```
 
 #### Step 2: Install Poetry
-If you don't have Poetry installed, you can install it by following the instructions on the official [Poetry website](https://python-poetry.org/).
 
-Alternatively, you can install it using the following command:
+You can install Poetry using the following command (It is better to activate virtual environment):
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+python3 -m venv path/to/venv
+source path/to/venv/bin/activate
+python3 -m pip install poetry
 ```
+
+Alternatively, Poetry can be installed by following the instructions on the official [Poetry website](https://python-poetry.org/).
 
 Ensure that Poetry is added to your PATH by running:
 ```bash
@@ -92,13 +95,6 @@ poetry install
 ```
 This command will create a virtual environment (if one doesn't already exist) and install all the 
 dependencies specified in the pyproject.toml file.
-
-#### Step 4: Activate the Virtual Environment
-After installation, activate the virtual environment created by Poetry:
-```bash
-poetry shell
-```
-This will drop you into a shell with the virtual environment activated.
 
 #### 🛠️ Troubleshooting
 If you encounter issues during installation or while running the project, consider the following:
@@ -247,16 +243,24 @@ the `#end#` keyword provides a clear signal to summarize and conclude the verifi
     ==================
     ```
   
-#### `#init#`
+[//]: # (#### `#init#`)
 
-- **Purpose**: Set all properties' last evaluation values to False.
-- **Usage**: This keyword is typically used once at the beginning of the trace to initialize all properties to 
-a `False` evaluation state. `PyDejaVu` automatically inserts this at the start of processing to 
-ensure a consistent initial state for all properties. 
-However, users can manually include `#init#` in the trace file if they wish to reset the properties' 
-evaluation states to `False` at any point during the trace.
-Doing so will not affect the DejaVu BDDs summaries or the error statistics, and the monitoring will 
-continue from the last processed event.
+[//]: # ()
+[//]: # (- **Purpose**: Set all properties' last evaluation values to False.)
+
+[//]: # (- **Usage**: This keyword is typically used once at the beginning of the trace to initialize all properties to )
+
+[//]: # (a `False` evaluation state. `PyDejaVu` automatically inserts this at the start of processing to )
+
+[//]: # (ensure a consistent initial state for all properties. )
+
+[//]: # (However, users can manually include `#init#` in the trace file if they wish to reset the properties' )
+
+[//]: # (evaluation states to `False` at any point during the trace.)
+
+[//]: # (Doing so will not affect the DejaVu BDDs summaries or the error statistics, and the monitoring will )
+
+[//]: # (continue from the last processed event.)
 
 
 ### Handling of Booleans and Floats
@@ -273,7 +277,7 @@ During the operational phase, `PyDejaVu` can handle floating-point numbers,
 allowing you to perform operations with decimal precision.
 However, when these values are passed to the declarative phase 
 (for example, in the logic specified in your properties), they will be automatically cast to integers. 
-This casting ensures compatibility with the formal verification process, which typically operates on integer values.
+This casting ensures compatibility with the DejaVu formal verification process, which typically operates on integer values.
 
 Example:
 ```csv
@@ -539,8 +543,8 @@ call `monitor.verify.end_eval()` after processing all events.
 
 
 ## Examples
-You can find comprehensive examples of monitors in the [examples](examples%2Fpydejavu_monitor) folder 
-and the [experiments](experiments) folder. These folders contain various use cases and demonstrations 
+You can find comprehensive examples of monitors in the [examples](https://github.com/moraneus/pydejavu/tree/main/examples/pydejavu_monitor) folder 
+and the [experiments](https://github.com/moraneus/pydejavu/tree/main/experiments) folder. These folders contain various use cases and demonstrations 
 of how to effectively use `PyDejaVu` for runtime verification.
 
 
