@@ -6,11 +6,12 @@ from pydejavu.utils.logger import Logger
 
 
 class EventOperationalMapper:
-    __slots__ = ['event_map', 'shared_state', '__m_logger']
+    __slots__ = ['event_map', 'parser_map', 'shared_state', '__m_logger']
 
     def __init__(self, i_logger: Logger = None):
         self.__m_logger = Logger() if i_logger is None else i_logger
         self.event_map: Dict[str, Callable] = {}
+        self.parser_map: Dict[str, Callable[[Any], Tuple[str, List[Any], str]]] = {}
         self.shared_state = SharedState()
         self.__m_logger.info("EventOperationalMapper instance initialized")
 
@@ -53,6 +54,29 @@ class EventOperationalMapper:
                 raise TypeError("The return value must be a tuple, list, or None.")
 
             self.event_map[event_name] = wrapper
+            return wrapper
+
+        return decorator
+
+    def parser(self, event_name: str):
+        """
+        Decorator for registering event parser handlers.
+
+        Args:
+            event_name (str): The name of the event.
+
+        Returns:
+            callable: The decorator function.
+        """
+
+        def decorator(func: Callable[[Any], Tuple[str, List[Any], str]]):
+            @wraps(func)
+            def wrapper(event: Any) -> Tuple[str, List[Any], str]:
+                self.__m_logger.debug(f"Executing parser for event '{event_name}'")
+                return func(event)
+
+            self.parser_map[event_name] = wrapper
+            self.__m_logger.info(f"Custom event parser registered for event '{event_name}'")
             return wrapper
 
         return decorator

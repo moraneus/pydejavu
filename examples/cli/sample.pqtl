@@ -1,0 +1,16 @@
+failed_attempts = {}
+
+
+@event("login")
+def handle_login(ip: str, user: str, success: bool):
+    global failed_attempts
+    if not success:
+        failed_attempts[(ip, user)] = failed_attempts.get(
+            (ip, user), 0) + 1
+        if failed_attempts[(ip, user)] >= 3:
+            return "failed_in_row", ip, user
+        else:
+            return None
+    else:
+        failed_attempts[(ip, user)] = 0
+        return "successful_login", ip, user

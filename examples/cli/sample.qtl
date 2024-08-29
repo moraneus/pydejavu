@@ -1,0 +1,1 @@
+prop suspicious_login : forall ip . forall user . ( successful_login(ip, user) -> ! P failed_in_row(ip, user) )

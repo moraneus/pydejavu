@@ -1,14 +1,10 @@
 import inspect
-import logging
 
 from typing import Any, Dict, List, Optional, Callable, get_type_hints, Union, Tuple
 from functools import lru_cache
 
 from pydejavu.core.event_operational_mapper import EventOperationalMapper
 from pydejavu.utils.logger import Logger
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class Verify:
@@ -42,6 +38,9 @@ class Verify:
         self.__monitor_setup(i_bits, i_mode, i_statistics)
         self.event_mapper = EventOperationalMapper()
         self.__m_handler_info_cache: Dict[Callable, Dict[str, Any]] = {}
+
+        # Mapping for custom event processor handlers
+        self.__m_custom_event_processor_handlers: Dict[str, Callable[[Any], Tuple[str, List[Any], str]]] = {}
 
     def __call__(self, input_data: Union[Dict[str, Any], str, List[Dict[str, Any]], List[str]]) -> \
             Union[Dict[str, Any], List[Dict[str, Any]]]:
@@ -112,7 +111,21 @@ class Verify:
             Dict[str, Any]: The result of processing and evaluating the event.
         """
 
-        event_name, event_args, origin_eval_input = self._parse_event(event)
+        # Determine event name
+        event_name = None
+        if isinstance(event, dict):
+            event_name = event.get('name')
+
+        # Check if a custom parser is registered for this event name
+        if event_name in self.event_mapper.parser_map:
+            self.__m_logger.debug(f"Using custom parser for event '{event_name}'")
+            parser = self.__get_parser(event_name)
+            event_data = parser(event)
+        else:
+            # Default parsing logic
+            event_data = self._parse_event(event)
+
+        event_name, event_args, origin_eval_input = event_data
         handler = self.__get_handler(event_name)
 
         if handler is None:
@@ -287,7 +300,7 @@ class Verify:
             return value
         try:
             if target_type == bool:
-                return value.lower() in ('true', 't', 'yes', 'y', '1')
+                return str(value).lower() in ('true', 't', 'yes', 'y', '1')
             return target_type(value)
         except (ValueError, TypeError) as e:
             raise TypeError(f"Failed to cast the string '{value}' into {target_type} ({str(e)})")
@@ -351,6 +364,19 @@ class Verify:
             Callable: The handler function.
         """
         return self.event_mapper.event_map.get(event_name)
+
+    @lru_cache(maxsize=128)
+    def __get_parser(self, event_name: str) -> Callable:
+        """
+        Retrieves or caches parser callable.
+
+        Args:
+            event_name (str): The event name which correspond to a callable.
+
+        Returns:
+            Callable: The parser function.
+        """
+        return self.event_mapper.parser_map.get(event_name)
 
     @lru_cache(maxsize=128)
     def __get_handler_info(self, handler: Callable) -> Dict[str, Any]:

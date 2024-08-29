@@ -31,6 +31,7 @@ class Monitor:
 
     __instance: Optional['Monitor'] = None  # Define the class-level instance attribute
     __pending_event_handlers: List[Tuple[str, Callable]] = []  # Store pending event handlers
+    __pending_parser_handlers: List[Tuple[str, Callable]] = []  # Store pending parser handlers
 
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
@@ -68,6 +69,12 @@ class Monitor:
         for event_name, func in self.__pending_event_handlers:
             self.register_event(event_name, func)
         self.__pending_event_handlers.clear()  # Clear pending events after registration
+
+        # Register all pending parser after initialization
+        for event_name, func in self.__pending_parser_handlers:
+            self.register_parser(event_name, func)
+        self.__pending_parser_handlers.clear()  # Clear pending processors after registration
+
         self.__initialized = True
 
     @staticmethod
@@ -85,12 +92,22 @@ class Monitor:
     @staticmethod
     def add_pending_event_handler(event_handler: Tuple[str, Callable]):
         """
-        Static method to get the list of all pending events for registration.
+        Static method to get the list of all pending events handlers for registration.
 
         Args:
-            event_handler (Tuple[str, Callable]): The pending event handler for registration.
+            event_handler (Tuple[str, Callable]): The pending event operational handler for registration.
         """
         Monitor.__pending_event_handlers.append(event_handler)
+
+    @staticmethod
+    def add_pending_parser_handler(parser_handler: Tuple[str, Callable]):
+        """
+        Static method to get the list of all pending event parser for registration.
+
+        Args:
+            parser_handler (Tuple[str, Callable]): The pending event parser handler for registration.
+        """
+        Monitor.__pending_parser_handlers.append(parser_handler)
 
     @property
     def verify(self) -> Verify:
@@ -258,6 +275,30 @@ class Monitor:
 
         return decorator
 
+    @classmethod
+    def parser(cls, event_name: str) -> Callable:
+        """
+        Class method decorator to register an event parser with the monitor.
+
+        If the monitor is initialized, it registers the parser immediately.
+        Otherwise, it stores the parser to be registered later when the monitor is initialized.
+
+        Args:
+            event_name (str): The name of the event to process.
+
+        Returns:
+            Callable: The decorator function that registers the parser.
+        """
+        def decorator(func: Callable):
+            instance = cls.__instance
+            if instance and instance.__is_initialized():
+                instance.register_parser(event_name, func)
+            else:
+                cls.__pending_parser_handlers.append((event_name, func))
+            return func
+
+        return decorator
+
     def register_event(self, event_name: str, func: Callable):
         """
         Registers an event handler with the Verify object.
@@ -267,6 +308,16 @@ class Monitor:
             func (Callable): The function to handle the event.
         """
         self.__m_verify.event(event_name)(func)
+
+    def register_parser(self, event_name: str, func: Callable):
+        """
+        Registers an event parser with the Verify object.
+
+        Args:
+            event_name (str): The name of the event to parse.
+            func (Callable): The function to parse the event.
+        """
+        self.__m_verify.event_mapper.parser(event_name)(func)
 
     def get_shared(self, key: str, default: Any = None) -> Any:
         """
@@ -348,6 +399,33 @@ def event(event_name: str) -> Callable:
     return decorator
 
 
+# Global parser function
+def parser(event_name: str) -> Callable:
+    """
+    A global decorator function to register an event parser with the monitor.
+
+    If the monitor is initialized, it registers the event parser immediately.
+    Otherwise, it stores the parser to be registered later when the monitor is initialized.
+
+    Args:
+        event_name (str): The name of the event to parser.
+
+    Returns:
+        Callable: The decorator function that registers the event parser.
+    """
+
+    monitor_instance = Monitor.get_instance()
+
+    def decorator(func: Callable):
+        if monitor_instance:
+            monitor_instance.register_parser(event_name, func)
+        else:
+            Monitor.add_pending_parser_handler((event_name, func))
+        return func
+
+    return decorator
+
+
 def execute_python_script(script_path):
     try:
         result = subprocess.run(['python3', script_path], check=True, capture_output=True, text=True)
@@ -360,14 +438,14 @@ def execute_python_script(script_path):
 
 def main():
     # Set up argument parsing
-    parser = argparse.ArgumentParser(description='Generate and execute a Python script for PyDejaVu')
-    parser.add_argument('--bits', type=int, default=20, help='Number of bits for the monitor (default: 16)')
-    parser.add_argument('--stats', type=bool, default=False, help='Enable or disable statistics (default: False)')
-    parser.add_argument('--qtl', type=str, required=True, help='Path to the QTL file')
-    parser.add_argument('--operational', type=str, required=False, help='Path to the operational event handler file')
-    parser.add_argument('--trace', type=str, required=True, help='Path to the trace file')
+    arg_parser = argparse.ArgumentParser(description='Generate and execute a Python script for PyDejaVu')
+    arg_parser.add_argument('--bits', type=int, default=20, help='Number of bits for the monitor (default: 16)')
+    arg_parser.add_argument('--stats', type=bool, default=False, help='Enable or disable statistics (default: False)')
+    arg_parser.add_argument('--qtl', type=str, required=True, help='Path to the QTL file')
+    arg_parser.add_argument('--operational', type=str, required=False, help='Path to the operational event handler file')
+    arg_parser.add_argument('--trace', type=str, required=True, help='Path to the trace file')
 
-    args = parser.parse_args()
+    args = arg_parser.parse_args()
 
     # Generate the Python script based on the input files and parameters
     generated_script_path = MonitorGenerator.generate_python_script(

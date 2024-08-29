@@ -23,10 +23,13 @@ monitor.init_monitor()
 # Dynamically defined event handlers for the operational phase
 {event_handlers}
 
-# Process events using the monitor
-events = {events}
-for event in events:
-    monitor.verify.process_event(event)
+  
+# Process events using the monitor  
+for chunk in monitor.read_bulk_events_as_dict("{events}", chunk_size=10000):
+    results = monitor.verify(chunk)
+    monitor.logger.debug(f"Processed chunk of {{len(chunk)}} events")
+
+monitor.verify.end_eval()
 """
 
     @staticmethod
@@ -41,23 +44,13 @@ for event in events:
             with open(pqtl_path, 'r') as pqtl_file:
                 event_handlers = pqtl_file.read()
 
-        # Read event trace from file and parse it into a list
-        with open(trace_path, 'r') as trace_file:
-            events = []
-            for line in trace_file:
-                event = line.strip()  # Convert each line to a dictionary
-                events.append(event)
-
-        # Convert events list to a string representation for the script
-        events_str = json.dumps(events)
-
         # Format the template with the actual values
         script_content = MonitorGenerator.PYTHON_SCRIPT_TEMPLATE.format(
             specification=specification,
             bits=bits,
             stats=stats,
             event_handlers=event_handlers,
-            events=events_str
+            events=trace_path
         )
 
         # Write the generated script to a .py file

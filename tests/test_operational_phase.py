@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from pydejavu.core.monitor import Monitor, event
+from pydejavu.core.monitor import Monitor, event, parser
 from pydejavu.core.verify import Verify
 
 
@@ -27,6 +27,67 @@ class TestOperationalPhase:
             monitor = Monitor(i_spec=specification)
             monitor._Monitor__m_verify = mock_verify
         return monitor
+
+    def test_parser_registration(self, monitor):
+        @parser("custom_event")
+        def custom_event_parser(event):
+            event_name = event.get('name', '')
+            event_args = event.get('args', [])
+            origin_eval_input = f"{event_name},{','.join(map(str, event_args))}"
+            return event_name, event_args, origin_eval_input
+
+        assert "custom_event" in monitor.verify.event_mapper.parser_map
+
+    def test_process_event_with_custom_parser(self, monitor):
+        @parser("custom_event")
+        def custom_event_parser(event):
+            event_name = event.get('name', '')
+            event_args = event.get('args', [])
+            origin_eval_input = f"{event_name}_2,{','.join(map(str, event_args))}"
+            return event_name, event_args, origin_eval_input
+
+        e = {"name": "custom_event", "args": [1, 2, 3]}
+        result = monitor.verify.process_event(e)
+
+        assert result["Original Event"] == "custom_event_2,1,2,3"
+        assert result["Modified Event"] == "custom_event_2,1,2,3"
+        assert result["Eval result"] == "a=true,b=false,c=true"
+
+    def test_fallback_to_default_parsing(self, monitor):
+        e = {"name": "no_parser_event", "args": [1, 2, 3]}
+        result = monitor.verify.process_event(e)
+
+        assert result["Original Event"] == "no_parser_event,1,2,3"
+        assert result["Modified Event"] == "no_parser_event,1,2,3"
+        assert result["Eval result"] == "a=true,b=false,c=true"
+
+    def test_custom_parser_with_handler_affecting_output(self, monitor):
+        @parser("affecting_event")
+        def custom_affecting_parser(event):
+            event_name = "affecting_event_2"
+            event_args = [arg * 2 for arg in event.get('args', [])]  # Custom modification
+            origin_eval_input = f"{event_name},{','.join(map(str, event_args))}"
+            return event_name, event_args, origin_eval_input
+
+        @event("affecting_event_2")
+        def handle_p(arg_x: int, arg_y: int, arg_z: int):
+            return ["affecting_event_3", arg_x * 2, arg_y * 2, arg_z * 2]
+
+        e = {"name": "affecting_event", "args": [1, 2, 3]}
+        result = monitor.verify.process_event(e)
+
+        assert result["Original Event"] == "affecting_event_2,2,4,6"
+        assert result["Modified Event"] == "affecting_event_3,4,8,12"
+        assert result["Eval result"] == "a=true,b=false,c=true"
+
+    def test_custom_parser_error_handling(self, monitor):
+        @parser("error_event")
+        def custom_error_parser(event):
+            raise ValueError("Custom parsing error")
+
+        e = {"name": "error_event", "args": [1, 2, 3]}
+        with pytest.raises(ValueError, match="Custom parsing error"):
+            monitor.verify.process_event(e)
 
     def test_operational_decorator_registration(self, monitor):
         @event("p")
