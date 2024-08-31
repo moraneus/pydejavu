@@ -5,21 +5,26 @@ from pydejavu.core.monitor import Monitor, event, parser
 
 
 # Define a custom event class
-class CustomEvent:
-    def __init__(self, name: str, args: List[Any]):
-        self.__m_name = name
-        self.__m_args = args
+class LoginEvent:
+    def __init__(self, username: str, ip: str, login_status: bool):
+        self.__m_username = username
+        self.__m_ip = ip
+        self.__m_login_status = login_status
 
     @property
-    def name(self):
-        return self.__m_name
+    def username(self):
+        return self.__m_username
 
     @property
-    def args(self):
-        return self.__m_args
+    def ip(self):
+        return self.__m_ip
+
+    @property
+    def status(self):
+        return self.__m_login_status
 
     def __repr__(self):
-        return f"CustomEvent(name={self.name}, args={self.args})"
+        return f"username={self.username}, ip={self.ip}, status={'success' if self.status else 'failed'}"
 
 
 # Initialize the monitor with the updated specification
@@ -31,23 +36,26 @@ monitor = Monitor(i_spec=specification, i_bits=16, i_logging_level=logging.INFO)
 
 
 @parser("login")
-def custom_login_parser(e: Dict[str, Union[CustomEvent, str]]) -> Tuple[str, List[Any], str]:
+def custom_login_parser(event: Any) -> Tuple[str, List[Any], str]:
     """
     Custom parser for login events.
 
     Args:
-        e (CustomEvent): The custom event format.
+        event (Any): The custom event format.
 
     Returns:
         Tuple[str, List[Any], str]: Parsed event in standard format.
     """
-    event_name = e.get("name")
-    event_args = e.get("data").args
+    event_name = event.get("name")
+    login_event: LoginEvent  = event.get("data")
+    username = login_event.username
+    ip = login_event.ip
+    status = login_event.status
 
     # Format original input for logging purposes
-    origin_eval_input = f"{event_name},{','.join(map(str, event_args))}"
+    origin_eval_input = f"{event_name},{str(login_event)}"
 
-    return event_name, event_args, origin_eval_input
+    return event_name, [username, ip, status], origin_eval_input
 
 
 # Define global variables to track state
@@ -71,10 +79,10 @@ def handle_login(ip: str, user: str, success: bool):
 
 # Example of processing an event stream using a custom format
 events = [
-    {"name": "login", "data": CustomEvent("login", ["192.168.1.10", "user1", False])},
-    {"name": "login", "data": CustomEvent("login", ["192.168.1.10", "user1", False])},
-    {"name": "login", "data": CustomEvent("login", ["192.168.1.10", "user1", False])},
-    {"name": "login", "data": CustomEvent("login", ["192.168.1.10", "user1", True])},
+    {"name": "login", "data": LoginEvent("user1", "192.168.1.10", False)},
+    {"name": "login", "data": LoginEvent("user1", "192.168.1.10", False)},
+    {"name": "login", "data": LoginEvent("user1", "192.168.1.10", False)},
+    {"name": "login", "data": LoginEvent("user1", "192.168.1.10", True)},
     {"name": "#end#", "args": []}
 ]
 
