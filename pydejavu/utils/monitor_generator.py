@@ -18,7 +18,6 @@ monitor = Monitor(
     i_statistics={stats},
     i_logging_level=logging.INFO if {stats} else logging.WARNING
 )
-monitor.init_monitor()
 
 # Dynamically defined event handlers for the operational phase
 {event_handlers}
@@ -29,7 +28,7 @@ for chunk in monitor.read_bulk_events_as_dict("{events}", chunk_size=10000):
     results = monitor.verify(chunk)
     monitor.logger.debug(f"Processed chunk of {{len(chunk)}} events")
 
-monitor.verify.end_eval()
+monitor.end()
 """
 
     @staticmethod

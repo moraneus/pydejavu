@@ -44,7 +44,7 @@ def initialize_monitor(bits: int, specification: str, stat: bool) -> Monitor:
         Monitor: An initialized instance of the Dejavu Monitor.
     """
     dejavu = Monitor(i_spec=specification, i_bits=bits, i_statistics=stat, i_logging_level=logging.ERROR)
-    dejavu.init_monitor()
+    dejavu.__init_monitor()
     return dejavu
 
 
@@ -75,7 +75,7 @@ def process_events(dejavu: Monitor, filename: str) -> None:
             dejavu.logger.debug(f"Processed chunk of {len(chunk)} events")
             for result in results:
                 dejavu.logger.debug(str(result))
-        dejavu.verify.end_eval()
+        dejavu.end()
     except FileNotFoundError:
         print(f"Error: File {filename} not found.")
     except Exception as e:

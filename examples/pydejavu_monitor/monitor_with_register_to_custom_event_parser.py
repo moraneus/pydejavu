@@ -28,7 +28,6 @@ prop suspicious_login : forall ip . forall user . ( successful_login(ip, user) -
 """
 
 monitor = Monitor(i_spec=specification, i_bits=16, i_logging_level=logging.INFO)
-monitor.init_monitor()
 
 
 @parser("login")

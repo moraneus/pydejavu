@@ -203,6 +203,10 @@ class Verify:
         return [self.process_event(event) for event in events]
 
     def end_eval(self):
+        """
+        Notify the DejaVu that user need to ends its verification.
+        This makes the result file to be closed correctly,
+        """
         self.__m_dejavu_monitor.end_eval()
 
     def __monitor_setup(

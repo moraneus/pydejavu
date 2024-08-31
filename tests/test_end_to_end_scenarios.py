@@ -39,7 +39,6 @@ class TestEndToEndScenarios:
         prop example2 : forall x . exists y . (p(x, "true") -> P r(x, y))
         """
         dejavu = Monitor(i_spec=specification, i_bits=20, i_statistics=True)
-        dejavu.init_monitor()
 
         @event("p")
         def handle_p(arg_x: int):

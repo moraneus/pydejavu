@@ -75,6 +75,8 @@ class Monitor:
             self.register_parser(event_name, func)
         self.__pending_parser_handlers.clear()  # Clear pending processors after registration
 
+        if self.__m_spec is not None:
+            self.__init_monitor()
         self.__initialized = True
 
     @staticmethod
@@ -129,7 +131,7 @@ class Monitor:
         """
         return self.__m_logger
 
-    def init_monitor(self):
+    def __init_monitor(self):
         """
         Initializes the monitor by synthesizing, compiling, and linking the specification.
 
@@ -341,6 +343,13 @@ class Monitor:
             value (Any): The value to set for the shared variable.
         """
         return self.__m_verify.set_shared(key, value)
+
+    def end(self) -> None:
+        """
+        Notify the DejaVu that user need to ends its verification.
+        This makes the result file to be closed correctly,
+        """
+        self.__m_verify.end_eval()
 
     def last_eval(self, spec_name: str) -> Optional[bool]:
         """

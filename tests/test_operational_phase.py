@@ -23,9 +23,9 @@ class TestOperationalPhase:
         prop b: some property b
         prop c: some property c
         """
-        with patch('pydejavu.core.monitor.Monitor.init_monitor'):
-            monitor = Monitor(i_spec=specification)
-            monitor._Monitor__m_verify = mock_verify
+
+        monitor = Monitor(i_spec=None)
+        monitor._Monitor__m_verify = mock_verify
         return monitor
 
     def test_parser_registration(self, monitor):

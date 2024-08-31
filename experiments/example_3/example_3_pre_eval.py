@@ -94,7 +94,7 @@ def process_events(monitor: Monitor, filename: str) -> None:
             monitor.logger.debug(f"Processed chunk of {len(chunk)} events")
             for result in results:
                 monitor.logger.debug(str(result))
-        monitor.verify.end_eval()
+        monitor.end()
     except FileNotFoundError:
         print(f"Error: File {filename} not found.")
     except Exception as e:

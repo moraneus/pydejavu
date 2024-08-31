@@ -5,7 +5,6 @@ specification = """
  """
 
 monitor = Monitor(i_spec=specification, i_bits=20, i_statistics=True)
-monitor.init_monitor()
 
 y = 0
 last_seen_q = False
@@ -34,4 +33,4 @@ for chunk in monitor.read_bulk_events_as_dict('/path/to/trace/file', chunk_size=
     for result in results:
         monitor.logger.debug(str(result))
 
-    monitor.verify.end_eval()
+    monitor.end()

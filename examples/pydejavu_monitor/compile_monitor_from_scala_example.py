@@ -35,4 +35,4 @@ for chunk in monitor.read_bulk_events_as_dict('/path/to/trace/file', chunk_size=
     for result in results:
         monitor.logger.debug(str(result))
 
-    monitor.verify.end_eval()
+    monitor.end()
