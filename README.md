@@ -266,10 +266,10 @@ update,process,True
 complete,process
 ```
 This trace file describes four events with no leading spaces:
-1. `start(process, 1)`
-2. `update(process, 2.5)`
-3. `update(process, True)`
-4. `complete(process)`
+1. `start,process,1`
+2. `update,process,2.5`
+3. `update,process,True`
+4. `complete,process`
 
 Each line in the file corresponds to an event, where the first value is the event name, 
 and the subsequent values are the arguments passed to that event.
@@ -280,11 +280,12 @@ actions to `PyDejaVu`. These keywords help manage the runtime verification proce
 particularly when handling online monitoring.
 
 #### `#end#`:
-- **Purpose**: Notifies `DejaVu` to execute its end function, which summarizes the results up to that point.
-- **Usage**: This keyword is essential because `PyDejaVu` operates as an online monitoring tool with respect to DejaVu, 
-where events are processed in real-time. 
+- **Purpose**: Notifies `DejaVu` to execute its internal `end` function, which summarizes the results up to that point.
+- **Usage**: This keyword is useful because `PyDejaVu` operates as an online monitoring tool with respect to DejaVu, 
+where events are processed in real-time.
 Since `DejaVu` cannot inherently know when the event trace will end, 
 the `#end#` keyword provides a clear signal to summarize and conclude the verification process.
+An alternative can be done by executing `stat` function (this will describe later).
 - **Example**:
     ```csv
       start,process,1
@@ -435,7 +436,6 @@ Here is how you can initialize the Monitor:
 
 ```python
 monitor = Monitor(i_spec=specification, i_bits=8)
-monitor.__init_monitor()
 ```
 
 #### Alternative Options for Monitor Initialization
@@ -571,16 +571,17 @@ You are not required to use the event iteration API to process events in `PyDeja
 Instead, you have the flexibility to process events individually or in batches using the following methods:
 
 - Processing Multiple Events:
-You can use the `monitor.verify.process_events(events)` method to process a batch (list) of events at once. 
+You can use the `monitor.verify.process_events(events)` or just `monitor.verify(events)` methods to process a batch (list) of events at once. 
 This method is particularly useful when you have a list of events that need to be verified together.
 
 - Processing a Single Event:
-Alternatively, you can use the `monitor.verify.process_event(event)` method to process a single event whenever needed. 
+Alternatively, you can use the `monitor.verify.process_event(event)` or just `monitor.verify(event)` methods to process a single event whenever needed. 
 This allows you to handle events as they occur in real-time or in specific scenarios where events are 
 processed one at a time.
 
 - Flexible Event Processing:  
-`PyDejaVu` provides flexibility in how you process events by allowing you to use either `monitor.verify(events)` to process a list of events or `monitor.verify(event)` to process a single event. The method automatically handles the input based on whether it is a single event or a batch of events.
+`PyDejaVu` provides flexibility in how you process events by allowing you to use either `monitor.verify(events)` to process a list of events or `monitor.verify(event)` to process a single event. 
+The method automatically handles the input based on whether it is a single event or a batch of events.
 
 
 🔔 Each event can be either a dictionary of type `Dict[str, Any]` or a `string`.
@@ -603,7 +604,8 @@ Since DejaVu cannot detect when the evaluation ends because `PyDejaVu` forwards 
 we must notify DejaVu at the end of the evaluation. 
 Otherwise, the result file might not close properly. To ensure proper termination, 
 call `monitor.end()` after processing all events.
-
+Similarly, we have the `monitor.stat()` function that notifies `DejaVu` to execute its internal `end` function, which summarizes the results up to that point.
+When calling to `monitor.end()` the `monitor.stat()` is called automatically.
 
 ## Examples
 You can find comprehensive examples of monitors in the [examples](https://github.com/moraneus/pydejavu/tree/main/examples/pydejavu_monitor) folder 
