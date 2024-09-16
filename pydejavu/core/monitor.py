@@ -347,9 +347,18 @@ class Monitor:
     def end(self) -> None:
         """
         Notify the DejaVu that user need to ends its verification.
-        This makes the result file to be closed correctly,
+        This makes the result file to be closed correctly.
+        It also called to get stat to summarize all events statistics.
         """
         self.__m_verify.end_eval()
+        self.__m_verify.get_stat()
+
+    def stat(self) -> None:
+        """
+        Get evaluation stat.
+        The printed stat summarize all events until the moment it called.
+        """
+        self.__m_verify.get_stat()
 
     def last_eval(self, spec_name: str) -> Optional[bool]:
         """
