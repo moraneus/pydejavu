@@ -35,21 +35,17 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def initialize_monitor(bits: int, specification: str, stat: bool) -> Monitor:
+def initialize_monitor(bits: int, stat: bool) -> Monitor:
     """Initialize the Dejavu monitor with the specified parameters.
 
     Args:
         bits (int): Number of bits for the monitor.
-        specification (str): The specification to initialize the monitor with.
         stat (bool): Flag to determine if statistics should be printed during evaluation.
 
     Returns:
         Monitor: An initialized instance of the Dejavu Monitor.
     """
-    monitor = Monitor(i_spec=specification, i_bits=bits, i_statistics=stat, i_logging_level=logging.ERROR)
-
-    # We comment the init_monitor() function for experiments purpose
-    # monitor.init_monitor()
+    monitor = Monitor(i_bits=bits, i_statistics=stat, i_logging_level=logging.ERROR)
 
     # Due to the need to make minimum action for the experiments,
     # We used already compiled monitor
@@ -142,7 +138,7 @@ def main() -> None:
     """
 
     # Initialize the Dejavu monitor
-    monitor = initialize_monitor(args.bits, specification, args.stat)
+    monitor = initialize_monitor(args.bits, args.stat)
 
     # Setup event handlers
     setup_event_handlers(monitor)
