@@ -29,7 +29,7 @@ class LoginEvent:
 
 # Initialize the monitor with the updated specification
 specification = """
-prop suspicious_login : forall user . forall ip . ( login(user, ip, "true") -> ! P login(user, ip, "false") )
+prop suspicious_login : forall ip . forall user . ( successful_login(ip, user) -> ! P failed_in_row(ip, user) )
 """
 
 monitor = Monitor(i_spec=specification, i_bits=16, i_logging_level=logging.INFO)
@@ -62,19 +62,19 @@ def custom_login_parser(event: Any) -> Tuple[str, List[Any], str]:
 failed_attempts = {}
 
 
-# @event("login")
-# def handle_login(ip: str, user: str, success: bool):
-#     global failed_attempts
-#     if not success:
-#         failed_attempts[(ip, user)] = failed_attempts.get(
-#             (ip, user), 0) + 1
-#         if failed_attempts[(ip, user)] >= 3:
-#             return "failed_in_row", ip, user
-#         else:
-#             return None
-#     else:
-#         failed_attempts[(ip, user)] = 0
-#         return "successful_login", ip, user
+@event("login")
+def handle_login(ip: str, user: str, success: bool):
+    global failed_attempts
+    if not success:
+        failed_attempts[(ip, user)] = failed_attempts.get(
+            (ip, user), 0) + 1
+        if failed_attempts[(ip, user)] >= 3:
+            return "failed_in_row", ip, user
+        else:
+            return None
+    else:
+        failed_attempts[(ip, user)] = 0
+        return "successful_login", ip, user
 
 
 # Example of processing an event stream using a custom format

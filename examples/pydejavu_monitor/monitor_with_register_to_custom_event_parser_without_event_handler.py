@@ -1,7 +1,7 @@
 import logging
-from typing import Any, Tuple, List, Dict, Union
+from typing import Any, Tuple, List
 
-from pydejavu.core.monitor import Monitor, event, parser
+from pydejavu.core.monitor import Monitor, parser
 
 
 # Define a custom event class
@@ -56,25 +56,6 @@ def custom_login_parser(event: Any) -> Tuple[str, List[Any], str]:
     origin_eval_input = f"{event_name},{str(login_event)}"
 
     return event_name, [username, ip, status], origin_eval_input
-
-
-# Define global variables to track state
-failed_attempts = {}
-
-
-# @event("login")
-# def handle_login(ip: str, user: str, success: bool):
-#     global failed_attempts
-#     if not success:
-#         failed_attempts[(ip, user)] = failed_attempts.get(
-#             (ip, user), 0) + 1
-#         if failed_attempts[(ip, user)] >= 3:
-#             return "failed_in_row", ip, user
-#         else:
-#             return None
-#     else:
-#         failed_attempts[(ip, user)] = 0
-#         return "successful_login", ip, user
 
 
 # Example of processing an event stream using a custom format
