@@ -1,0 +1,12 @@
+initiate
+    max_y: int := -1
+
+on p(x: int)
+  x_gt_y: bool := x > max_y
+  output p(x, x_gt_y)
+
+on q(y: int)
+  is_max: bool := max_y < y
+  max_y: int :=
+    ite(is_max, y, max_y)
+  output q(y)

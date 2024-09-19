@@ -1,0 +1,16 @@
+initiate
+  last_q: bool := false
+
+on p(x: int)
+  x_lt_y: bool :=
+    last_seen_q && x < y
+  last_q: bool := false
+  output p_q(x, y, x_lt_y)
+
+on q(y: int)
+  last_q: bool := true
+  output skip
+
+on r(x: int, y: int)
+  last_q: bool := false
+  output r(x,y)

@@ -1,0 +1,4 @@
+on q(x: int, y: int)
+  in_bound: bool := y > 10
+  output ite(in_bound,
+    q(x), skip)
