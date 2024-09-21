@@ -34,17 +34,22 @@ the DejaVu tool.
 
 #### Combining Python and DEJAVU
 
-PyDejaVu bridges the gap between operational and declarative runtime verification, allowing users to define complex 
+`PyDejaVu` bridges the gap between operational and declarative runtime verification, allowing users to define complex 
 behaviors and verify them against formal specifications. Whether you're performing real-time analysis of event 
 streams or ensuring that your system meets stringent correctness criteria, 
 PyDejaVu offers a versatile solution that can be tailored to meet your needs.
 
-With PyDejaVu, you can take advantage of Python's powerful capabilities in the first phase while relying 
+With `PyDejaVu`, you can take advantage of Python's powerful capabilities in the first phase while relying 
 on the declarative strength of DejaVu in the second phase, providing a comprehensive tool for runtime verification 
 in a wide range of applications.
 
 ## Setting Up the Environment for PyDejavu
-`PyDejaVu` is a unix  
+`PyDejaVu` is a Unix-compatible tool designed for cross-platform use, initially developed on macOS 
+and tested on both macOS and Ubuntu Linux distributions. 
+While specifically tested on these two platforms, `PyDejaVu` may potentially work on other Unix-like 
+systems as well, though this would require further testing to confirm. 
+It's important to note that as a Unix-based tool, `PyDejaVu` is not natively compatible with 
+Windows and may require additional setup and modifications, to run on Windows machines. 
 
 ### Install Python
 
@@ -110,22 +115,41 @@ If these commands return the correct versions, your environment is correctly set
 
 ## PyDejaVu Installation
 
-### Pip Installation 
+Before proceeding, ensure your environment is properly configured according to the instructions 
+in the [previous section](#setting-up-the-environment-for-pydejavu). This step is crucial for the 
+successful execution of `PyDejaVu` and helps prevent potential issues arising from an incorrectly 
+set up environment.
+
+Here we suggest three metods of installation:
+- [**Pip Installation**](#pip-installation): 
 For users who need to use `PyDejaVu` without making changes to the codebase, pip offers a quick 
 and straightforward setup. 
 This method allows you to focus on using the tool rather than managing its dependencies.
+- [**Docker Installation**](#docker-installation): 
+Docker provides a robust solution for running `PyDejaVu` in an isolated and consistent environment. 
+This method is ideal for users who prefer not to modify their local system or manage package 
+installations manually.
+- [**Source Code Installation**](#source-code-installation): 
+Installing the source code is a great option if you need more flexibility and control over the `PyDejaVu` project. 
+Here are some reasons why you might choose this method:
+  - **Customization and Modification:** If you plan to modify the code to suit specific requirements or contribute to the project, installing the source code gives you direct access to all the files. This is ideal for developers who want to extend or alter the functionality of `PyDejaVu`.
+  - **Development and Debugging:** When working on new features or fixing bugs, having the source code installed locally allows you to test changes immediately. This setup is essential for contributors or developers actively working on the `PyDejaVu` project.
+  - **Learning and Exploration:** If you're interested in understanding how `PyDejaVu` works internally, studying the source code can be very educational. You can explore the implementation details, experiment with changes, and see how different components interact.
+
+
+### Pip Installation
 
 #### Step 1: Install PyDejaVu
 
 To install the latest version of `PyDejaVu` from PyPI, run:
 ```bash
-pip install PyDejaVu-RV
+pip install pydejavu-rv
 ```
 This command will download and install `PyDejaVu` along with all its dependencies.
 
 To upgrade an existing installation to the latest version:
 ```bash
-pip install --upgrade py-dejavu
+pip install --upgrade pydejavu-rv
 ```
 
 #### Step 2: Verify the Installation
@@ -164,11 +188,7 @@ If you encounter issues during installation or usage of `PyDejaVu`, consider the
  - **System Requirements**: Ensure your system meets the requirements for running Java-based 
    applications, as `PyDejaVu` relies on a Java runtime.
 
-### Docker Installation 
-
-Docker provides a robust solution for running `PyDejaVu` in an isolated and consistent environment. 
-This method is ideal for users who prefer not to modify their local system or manage package 
-installations manually.
+### Docker Installation
 
 #### Prerequisites
 Ensure Docker is installed on your system. You can download 
@@ -271,20 +291,32 @@ python monitor_for_detecting_suspicious_login_patterns.py
     ```bash
     docker run -it --cpus 2 --memory 4g pydejavu
     ```
+- **Cached Images**: If the Docker build command completes unusually quickly (within a few seconds), 
+    it's likely using cached images from previous builds. In this case, you may need to 
+    remove the older Docker containers and images associated with your project 
+    (in this case, `pydejavu`) to force a fresh build. Here's how you can do this:
+  1. Stop and remove existing containers:
+     ```bash
+     docker stop $(docker ps -a -q --filter ancestor=pydejavu)
+     docker rm $(docker ps -a -q --filter ancestor=pydejavu)
+     ```
+  2. Remove associated images:
+       ```bash
+     docker rmi $(docker images | grep pydejavu | awk '{print $3}')
+     ```
+  3. Rebuild your Docker image:
+     ```bash
+     docker build --no-cache -t pydejavu .
+     ```
+  This process ensures that your next build will create a fresh image 
+  without relying on potentially outdated cached layers.
+
 - **Debugging**: To debug issues, you can start a shell in the container:
     ```bash
     docker run -it pydejavu /bin/bash
     ```
 
 ### Source Code Installation
-
-Installing the source code is a great option if you need more flexibility and control over the `PyDejaVu` project. 
-Here are some reasons why you might choose this method:
-
-- **Customization and Modification:** If you plan to modify the code to suit specific requirements or contribute to the project, installing the source code gives you direct access to all the files. This is ideal for developers who want to extend or alter the functionality of `PyDejaVu`.
-- **Development and Debugging:** When working on new features or fixing bugs, having the source code installed locally allows you to test changes immediately. This setup is essential for contributors or developers actively working on the `PyDejaVu` project.
-- **Learning and Exploration:** If you're interested in understanding how `PyDejaVu` works internally, studying the source code can be very educational. You can explore the implementation details, experiment with changes, and see how different components interact.
-
 
 #### Prerequisites
 
@@ -332,105 +364,6 @@ If you encounter issues during installation or while running the project, consid
  - Ensure that your Python version meets the minimum requirement.
  - Check that Poetry is correctly installed and accessible from your command line. 
  - Verify that all dependencies are properly installed by running poetry show.
-
-
-## Trace File Format
-The trace file used by `PyDejaVu` should be in a comma-separated value (CSV) format, 
-similar to the format described in this [CSV file format guide](http://edoceo.com/utilitas/csv-file-format). 
-The file defines a sequence of events that `PyDejaVu` will process during runtime verification.
-
-### Example Trace File
-Consider the following example of a trace file:
-```csv
-start,process,1
-update,process,2.5
-update,process,True
-complete,process
-```
-This trace file describes four events with no leading spaces:
-1. `start,process,1`
-2. `update,process,2.5`
-3. `update,process,True`
-4. `complete,process`
-
-Each line in the file corresponds to an event, where the first value is the event name, 
-and the subsequent values are the arguments passed to that event.
-
-### Special Keywords in Trace Files
-In addition to regular event lines, the trace file format supports special keywords that signal specific 
-actions to `PyDejaVu`. These keywords help manage the runtime verification process, 
-particularly when handling online monitoring.
-
-#### `#end#`:
-- **Purpose**: Notifies `DejaVu` to execute its internal `end` function, which summarizes the results up to that point.
-- **Usage**: This keyword is useful because `PyDejaVu` operates as an online monitoring tool with respect to DejaVu, 
-where events are processed in real-time.
-Since `DejaVu` cannot inherently know when the event trace will end, 
-the `#end#` keyword provides a clear signal to summarize and conclude the verification process.
-An alternative can be done by executing `stat` function (this will describe later).
-- **Example**:
-    ```csv
-      start,process,1
-      update,process,2.5
-      #end#
-    ```
-- **Result**: After encountering #end#, DejaVu will summarize the results of the verification process up to this point.
-    ```bash
-    Processed 1000000 events
-    
-    55392 errors detected!
-    
-    ==================
-      Event Counts:
-    ------------------
-      p : 333432
-      q : 333029
-      r : 333539
-    ==================
-    ```
-  
-[//]: # (#### `#init#`)
-
-[//]: # ()
-[//]: # (- **Purpose**: Set all properties' last evaluation values to False.)
-
-[//]: # (- **Usage**: This keyword is typically used once at the beginning of the trace to initialize all properties to )
-
-[//]: # (a `False` evaluation state. `PyDejaVu` automatically inserts this at the start of processing to )
-
-[//]: # (ensure a consistent initial state for all properties. )
-
-[//]: # (However, users can manually include `#init#` in the trace file if they wish to reset the properties' )
-
-[//]: # (evaluation states to `False` at any point during the trace.)
-
-[//]: # (Doing so will not affect the DejaVu BDDs summaries or the error statistics, and the monitoring will )
-
-[//]: # (continue from the last processed event.)
-
-
-### Handling of Booleans and Floats
-`PyDejaVu` provides special handling for certain string values and numeric types to support flexible and 
-accurate runtime verification.
-
-#### Boolean Handling
-Strings that represent boolean values, specifically "False", "false", "True", and "true", will be automatically 
-interpreted as booleans by `PyDejaVu`. This means that when such strings are encountered in the trace file, 
-they are treated as the boolean values False or True respectively.
-
-#### Float Handling:
-During the operational phase, `PyDejaVu` can handle floating-point numbers, 
-allowing you to perform operations with decimal precision.
-However, when these values are passed to the declarative phase 
-(for example, in the logic specified in your properties), they will be automatically cast to integers. 
-This casting ensures compatibility with the DejaVu formal verification process, which typically operates on integer values.
-
-Example:
-```csv
-update,process,2.5
-```
-In the operational phase, this value can be handled as a float (2.5). 
-When passed to the declarative phase, it will be cast to 2.
 
 ## Usage
 
@@ -513,7 +446,7 @@ used during the verification process. Increasing this value can improve precisio
 verification process. (Default: False)
 - `i_logging_level`: An optional parameter to define the logging level. 
 If not provided, the default logging level is set to INFO.
-- 
+
 Here is how you can initialize the Monitor:
 
 ```python
@@ -686,8 +619,69 @@ Since DejaVu cannot detect when the evaluation ends because `PyDejaVu` forwards 
 we must notify DejaVu at the end of the evaluation. 
 Otherwise, the result file might not close properly. To ensure proper termination, 
 call `monitor.end()` after processing all events.
-Similarly, we have the `monitor.stat()` function that notifies `DejaVu` to execute its internal `end` function, which summarizes the results up to that point.
-When calling to `monitor.end()` the `monitor.stat()` is called automatically.
+Additionally, we have the `monitor.stat()` function that notifies `DejaVu` to execute its internal `end` function, 
+which summarizes the results up to that point.
+When calling to `monitor.end()` the `monitor.stat()` is called automatically. Below is an example of how the statistics looks like:
+```bash
+Processed 1000000 events
+
+55392 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 333432
+  q : 333029
+  r : 333539
+==================
+```
+
+## Trace File Format
+The trace file used by `PyDejaVu` is identical to the one is used in `DejaVu`, 
+and it should be in a comma-separated value (CSV) format,
+similar to the format described in this [CSV file format guide](http://edoceo.com/utilitas/csv-file-format). 
+The file defines a sequence of events that `PyDejaVu` will process during runtime verification.
+
+### Example Trace File
+Consider the following example of a trace file:
+```csv
+start,process,1
+update,process,2.5
+update,process,True
+complete,process
+```
+This trace file describes four events with no leading spaces:
+1. `start,process,1`
+2. `update,process,2.5`
+3. `update,process,True`
+4. `complete,process`
+
+Each line in the file corresponds to an event, where the first value is the event name, 
+and the subsequent values are the arguments passed to that event.
+
+### Handling of Booleans and Floats
+`PyDejaVu` provides special handling for certain string values and numeric types to support flexible and 
+accurate runtime verification.
+
+#### Boolean Handling
+Strings that represent boolean values, specifically "False", "false", "True", and "true", will be automatically 
+interpreted as booleans by `PyDejaVu`. This means that when such strings are encountered in the trace file, 
+they are treated as the boolean values False or True respectively.
+
+#### Float Handling:
+During the operational phase, `PyDejaVu` can handle floating-point numbers, 
+allowing you to perform operations with decimal precision.
+However, when these values are passed to the declarative phase 
+(for example, in the logic specified in your properties), they will be automatically cast to integers. 
+This casting ensures compatibility with the DejaVu formal verification process, which typically operates on integer values.
+
+Example:
+```csv
+update,process,2.5
+```
+In the operational phase, this value can be handled as a float (2.5). 
+When passed to the declarative phase, it will be cast to 2.
+
 
 ## Examples
 You can find comprehensive examples of monitors in the [examples](https://github.com/moraneus/pydejavu/tree/main/examples/pydejavu_monitor) folder 
@@ -724,7 +718,7 @@ tailored to the user's input parameters for runtime verification.
 These output files provide a comprehensive overview of each execution, allowing you to analyze and debug the 
 behavior of your specifications in detail.
 
-## Contributors - For TP-DejaVu (Ordered by last name):
+## Contributors - For `PyDejaVu` (Ordered by last name):
 * [Klaus Havelund](http://www.havelund.com), Jet Propulsion Laboratory/NASA, USA
 * [Moran Omer](https://github.com/moraneus), Bar Ilan University, Israel
 * [Doron Peled](http://u.cs.biu.ac.il/~doronp), Bar Ilan University, Israel
