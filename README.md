@@ -44,6 +44,8 @@ on the declarative strength of DejaVu in the second phase, providing a comprehen
 in a wide range of applications.
 
 ## Setting Up the Environment for PyDejavu
+`PyDejaVu` is a unix  
+
 ### Install Python
 
 Ensure you have Python installed on your system. 
@@ -108,6 +110,172 @@ If these commands return the correct versions, your environment is correctly set
 
 ## PyDejaVu Installation
 
+### Pip Installation 
+For users who need to use `PyDejaVu` without making changes to the codebase, pip offers a quick 
+and straightforward setup. 
+This method allows you to focus on using the tool rather than managing its dependencies.
+
+#### Step 1: Install PyDejaVu
+
+To install the latest version of `PyDejaVu` from PyPI, run:
+```bash
+pip install PyDejaVu-RV
+```
+This command will download and install `PyDejaVu` along with all its dependencies.
+
+To upgrade an existing installation to the latest version:
+```bash
+pip install --upgrade py-dejavu
+```
+
+#### Step 2: Verify the Installation
+After installation, verify that `PyDejaVu` has been installed correctly:
+```bash
+pip show pydejavu-rv
+```
+You should see output similar to:
+```bash
+Name: PyDejaVu-RV
+Version: x.y.z
+Summary: PyDejaVu is a Python implementation that wraps the original DejaVu jar file, providing a bridge between Python and the Java-based DejaVu runtime verification tool. This wrapper extends DejaVu's functionality by supporting a 2-phase monitoring approach.
+Home-page: https://github.com/moraneus/pydejavu
+Author: moraneus
+Author-email: moraneus@gmail.com
+License: Apache-2.0
+Location: /path/to/your/python/site-packages
+Requires: psutil, pyjnius, pytest, pytest-forked, pytest-xdist
+```
+
+#### 🛠️ Troubleshooting
+If you encounter issues during installation or usage of `PyDejaVu`, consider the following:
+ - **Python Environment**: Ensure your Python environment is correctly configured and you have 
+   the necessary permissions to install packages.
+ - **Virtual Environment**: If using a virtual environment, activate it before running 
+   the pip install command:
+    ```bash
+    source path/to/your/venv/bin/activate
+    ```
+ - **Dependencies**: If you encounter dependency-related issues, try installing them separately
+    ```bash
+    pip install psutil pyjnius pytest pytest-forked pytest-xdist
+    ```
+ - **Version Conflicts**: In case of version conflicts, consider creating a new virtual environment 
+   for a clean installation.
+ - **System Requirements**: Ensure your system meets the requirements for running Java-based 
+   applications, as `PyDejaVu` relies on a Java runtime.
+
+### Docker Installation 
+
+Docker provides a robust solution for running `PyDejaVu` in an isolated and consistent environment. 
+This method is ideal for users who prefer not to modify their local system or manage package 
+installations manually.
+
+#### Prerequisites
+Ensure Docker is installed on your system. You can download 
+Docker from [here](https://docs.docker.com/engine/install/).
+
+#### Step 1: Clone the Repository
+
+First, clone the repository to your local machine:
+
+```bash
+git clone https://github.com/moraneus/pydejavu.git
+cd pydejavu
+```
+
+#### Step 2: Build the Docker Image
+
+Ensure the Docker service is running, then build the image:
+
+```bash
+docker build -t pydejavu .
+```
+This command creates a Docker image named "pydejavu" with the following features:
+
+- Ubuntu based environment for running `PyDejaVu`.
+- Java and Scala installations.
+- Python with Poetry for dependency management.
+- `PyDejaVu` and its dependencies.
+- Linter and tests run to ensure proper configuration.
+
+You should see output similar to:
+```bash
+[+] Building 412.7s (17/17) FINISHED                                                                                                                                                                        
+ => [internal] load build definition from Dockerfile                                                                                                                                                   0.0s
+ => => transferring dockerfile: 2.32kB                                                                                                                                                                 0.0s
+ => [internal] load .dockerignore                                                                                                                                                                      0.0s
+ => => transferring context: 2B                                                                                                                                                                        0.0s
+ => [internal] load metadata for docker.io/library/python:3.12-slim                                                                                                                                    2.6s
+ => [ 1/13] FROM docker.io/library/python:3.12-slim@sha256:XXXchecksumXXX                                                                           57.4s
+ => => resolve docker.io/library/python:3.12-slim@sha256:XXXchecksumXXX                                                                              0.0s
+ => => sha256:XXXchecksumXXX 9.12kB / 9.12kB                                                                                                         0.0s
+ => => sha256:XXXchecksumXXX 1.75kB / 1.75kB                                                                                                         0.0s
+ => => sha256:XXXchecksumXXX 5.11kB / 5.11kB                                                                                                         0.0s
+ => => sha256:XXXchecksumXXX 29.16MB / 29.16MB                                                                                                       6.1s
+ => => sha256:XXXchecksumXXX 3.33MB / 3.33MB                                                                                                         0.8s
+ => => sha256:XXXchecksumXXX 13.38MB / 13.38MB                                                                                                      57.1s
+ => => sha256:XXXchecksumXXX 250B / 250B                                                                                                             1.2s
+ => => extracting sha256:XXXchecksumXXX                                                                                                              0.5s
+ => => extracting sha256:XXXchecksumXXX                                                                                                              0.1s
+ => => extracting sha256:XXXchecksumXXX                                                                                                              0.3s
+ => => extracting sha256:XXXchecksumXXX                                                                                                              0.0s
+ => [ 2/13] RUN apt-get update && apt-get install -y     curl     wget     gnupg2     software-properties-common     unzip     zip     && rm -rf /var/lib/apt/lists/*                                 21.8s
+ => [ 3/13] RUN wget -O- https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /usr/share/keyrings/adoptium.asc     && echo "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://  179.2s
+ => [ 4/13] RUN curl -s "https://get.sdkman.io" | bash     && bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install scala 2.12.18"                                                          14.6s 
+ => [ 5/13] RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && scalac -version && java -version && python --version"                                                                              0.6s 
+ => [ 6/13] RUN pip install --no-cache-dir "poetry==1.6.1"                                                                                                                                            18.4s 
+ => [ 7/13] RUN poetry config virtualenvs.create false                                                                                                                                                 0.5s 
+ => [ 8/13] RUN pip install flake8                                                                                                                                                                     2.5s 
+ => [ 9/13] RUN git clone https://github.com/moraneus/pydejavu.git /app                                                                                                                               20.1s 
+ => [10/13] WORKDIR /app                                                                                                                                                                               0.0s 
+ => [11/13] RUN poetry install --no-interaction --no-ansi                                                                                                                                              2.2s 
+ => [12/13] RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics && flake8 . --count --exit-zero --max-complexity=10 --max-line  0.7s 
+ => [13/13] RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && pytest --forked"                                                                                                                  90.6s 
+ => exporting to image                                                                                                                                                                                 1.4s 
+ => => exporting layers                                                                                                                                                                                1.4s 
+ => => writing image sha256:XXXchecksumXXX                                                                                                           0.0s 
+ => => naming to docker.io/library/pydejavu     
+```
+
+#### Step 3: Run the Docker Container
+Start an interactive session in the Docker container:
+```bash
+docker run -it pydejavu
+```
+This command starts an interactive session inside the Docker container, 
+where `PyDejaVu` is set up and ready to use.
+
+#### Step 4: Operate PyDejaVu
+Inside the Docker container, you can run `PyDejaVu` commands. For example:
+
+##### Example: Using the CLI
+```bash
+cd examples/cli
+python -m pydejavu --bits 20 --stats true --qtl sample.qtl --operational sample.pqtl --trace sample.log
+```
+
+##### Example: Running a Pre-defined Monitor
+```bash
+cd examples/pydejavu_monitors
+python monitor_for_detecting_suspicious_login_patterns.py
+```
+
+#### 🛠️ Troubleshooting
+
+- **Docker Service**: Ensure the Docker service is running before building or running containers.
+- **Persistent Storage**: To persist data between container runs, use Docker volumes:
+    ```bash
+    docker run -it -v /path/on/host:/path/in/container pydejavu
+    ```
+- **Resource Allocation**: If `PyDejaVu` requires more resources, allocate them using Docker's resource flags:
+    ```bash
+    docker run -it --cpus 2 --memory 4g pydejavu
+    ```
+- **Debugging**: To debug issues, you can start a shell in the container:
+    ```bash
+    docker run -it pydejavu /bin/bash
+    ```
+
 ### Source Code Installation
 
 Installing the source code is a great option if you need more flexibility and control over the `PyDejaVu` project. 
@@ -118,11 +286,9 @@ Here are some reasons why you might choose this method:
 - **Learning and Exploration:** If you're interested in understanding how `PyDejaVu` works internally, studying the source code can be very educational. You can explore the implementation details, experiment with changes, and see how different components interact.
 
 
-
 #### Prerequisites
 
 Ensure that you have Python 3.8 or higher installed on your system. 
-You will also need [Poetry](https://python-poetry.org/) for managing dependencies and packaging the project.
 
 #### Step 1: Clone the Repository
 
@@ -134,30 +300,31 @@ cd pydejavu
 ```
 
 #### Step 2: Install Poetry
+This project uses [Poetry](https://python-poetry.org/) for managing dependencies and packaging. 
+Follow these steps to set up your development environment:
 
-You can install Poetry using the following command (It is better to activate virtual environment):
-```bash
-python3 -m venv path/to/venv
-source path/to/venv/bin/activate
-python3 -m pip install poetry
-```
+1. Create and activate a virtual environment (recommended):
+    ```bash
+    python3 -m venv path/to/venv
+    source path/to/venv/bin/activate
+    ```
+2. Install Poetry:
+    ```bash
+    pip install poetry
+    ```
+3. Verify the installation:
+    ```bash
+    poetry --version
+    ```
+    If Poetry is correctly installed, you should see the version number.
 
-Alternatively, Poetry can be installed by following the instructions on the official [Poetry website](https://python-poetry.org/).
-
-Ensure that Poetry is added to your PATH by running:
-```bash
-poetry --version
-```
-
-#### Step 3: Install Dependencies
-With Poetry installed, you can now install the project dependencies. 
-
+#### Step 3: Install Project Dependencies
+With Poetry installed, you can now install the project dependencies.
 Run the following command in the root directory of the project:
 ```bash
 poetry install
 ```
-This command will create a virtual environment (if one doesn't already exist) and install all the 
-dependencies specified in the pyproject.toml file.
+This will create a `poetry.lock` file and install all necessary dependencies for the project.
 
 #### 🛠️ Troubleshooting
 If you encounter issues during installation or while running the project, consider the following:
@@ -165,91 +332,6 @@ If you encounter issues during installation or while running the project, consid
  - Ensure that your Python version meets the minimum requirement.
  - Check that Poetry is correctly installed and accessible from your command line. 
  - Verify that all dependencies are properly installed by running poetry show.
-
-### Pip Installation 
-For users who just need to use `PyDejaVu` without making any changes, `pip` provides a quick and hassle-free setup, 
-allowing you to focus on using the tool rather than managing the codebase.
-Installing `PyDejaVu` via `pip` is the simplest and most convenient method for most users. 
-If you prefer to install `PyDejaVu` directly from PyPI using `pip`, you can do so with a single command.
-
-#### Step 1: Install PyDejaVu
-
-To install the latest version of `PyDejaVu` from PyPI, run the following command:
-```bash
-pip install PyDejaVu-RV
-```
-This command will automatically download and install `PyDejaVu` and all its dependencies.
-
-If you need to upgrade `PyDejaVu` to the latest version, you can do so with:
-```bash
-pip install --upgrade py-dejavu
-```
-
-
-#### Step 2: Verify the Installation
-After installation, you can verify that `PyDejaVu` has been installed correctly by checking the installed package list:
-```bash
-pip show pydejav
-```
-
-#### 🛠️ Troubleshooting
-If you encounter any issues while installing or using `PyDejaVu` via pip, consider the following:
-
- - Ensure that your Python environment is correctly configured and that you have the necessary permissions to install packages. 
- - If you’re using a virtual environment, make sure it’s activated before running the pip install command.
-
-### Docker Installation 
-
-For those who want a streamlined setup without modifying their local environment, 
-Docker offers a robust solution to run `PyDejaVu` in an isolated and consistent environment. 
-By using Docker, you avoid dealing with dependencies and compatibility issues, as everything is pre-configured 
-in a container. This approach is perfect for users who prefer not to alter their system settings or manage 
-package installations manually. If you choose to use Docker, setting up and running `PyDejaVu` is 
-straightforward and can be accomplished with just a few commands.
-
-#### Prerequisites
-Ensure Docker is installed on your system. You can download 
-Docker from [here](https://docs.docker.com/engine/install/).
-
-#### Step 1: Clone the Repository
-
-First, clone the repository to your local machine:
-
-```bash
-git clone https://github.com/yourusername/pydejavu.git
-cd pydejavu
-```
-
-#### Step 2: Build the Docker Image
-
-Build the Docker image using the provided Dockerfile:
-
-```bash
-docker build -t pydejavu .
-```
-This command builds a Docker image named "pydejavu".
-When this Dockerfile is built, it creates a Docker image that sets up a complete 
-environment for running `PyDejaVu`. The build process installs necessary system dependencies, 
-including Java and Scala, configures Python with Poetry for dependency management, and installs 
-`PyDejaVu` along with its dependencies. 
-Additionally, it runs a linter and tests to ensure that everything is properly configured and working. 
-The result is a ready-to-use Docker image that contains all the tools and libraries needed 
-to run `PyDejaVu` seamlessly, providing a consistent and reproducible environment across different systems.
-
-#### Step 4: Run the Docker Container
-Run the Docker container using the image you just built:
-```bash
-docker run -it pydejavu
-```
-This command starts an interactive session inside the Docker container, 
-where `PyDejaVu` is set up and ready to use.
-
-#### Step 4: Operate PyDejaVu
-Inside the Docker container, you can run `PyDejaVu` commands as needed. For example, to start monitoring:
-```bash
-python -m pydejavu <your-arguments>
-```
-Replace <your-arguments> with the specific arguments for your use case.
 
 
 ## Trace File Format
