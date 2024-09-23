@@ -4,24 +4,24 @@ echo "=== RESULT ===" >> result-spec-1
 
 echo "########## spec 1 ##########" >> result-spec-1
 
-echo "########## spec_origin.qtl 10K ##########"
-echo "########## spec_origin.qtl 10K ##########" >> result-spec-1
+#echo "########## spec_origin.qtl 10K ##########"
+#echo "########## spec_origin.qtl 10K ##########" >> result-spec-1
 #(gtime python3 example_1_no_pre_eval.py --bits 20 --logfile log_10K.csv) >> result-spec-1 2>&1
 
-echo "########## spec_origin.qtl 100K ##########"
-echo "########## spec_origin.qtl 100K ##########" >> result-spec-1
+#echo "########## spec_origin.qtl 100K ##########"
+#echo "########## spec_origin.qtl 100K ##########" >> result-spec-1
 #(gtime python3 example_1_no_pre_eval.py --bits 20 --logfile log_100K.csv) >> result-spec-1 2>&1
 
-echo "########## spec_origin.qtl 500K ##########"
-echo "########## spec_origin.qtl 500K ##########" >> result-spec-1
+#echo "########## spec_origin.qtl 500K ##########"
+#echo "########## spec_origin.qtl 500K ##########" >> result-spec-1
 #(gtime python3 example_1_no_pre_eval.py --bits 20 --logfile log_500K.csv) >> result-spec-1 2>&1
 
-echo "########## spec_origin.qtl 1M ##########"
-echo "########## spec_origin.qtl 1M ##########" >> result-spec-1
+#echo "########## spec_origin.qtl 1M ##########"
+#echo "########## spec_origin.qtl 1M ##########" >> result-spec-1
 #(gtime python3 example_1_no_pre_eval.py --bits 20 --logfile log_1M.csv) >> result-spec-1 2>&1
 
-echo "########## spec_origin.qtl 5M ##########"
-echo "########## spec_origin.qtl 5M ##########" >> result-spec-1
+#echo "########## spec_origin.qtl 5M ##########"
+#echo "########## spec_origin.qtl 5M ##########" >> result-spec-1
 #(gtime python3 example_1_no_pre_eval.py --bits 30 --logfile log_5M.csv) >> result-spec-1 2>&1
 
 echo "########## spec_modified.qtl 10K ##########"
@@ -40,7 +40,7 @@ echo "########## spec_modified.qtl 1M ##########"
 echo "########## spec_modified.qtl 1M ##########" >> result-spec-1
 (gtime python3 example_1_pre_eval.py --bits 20 --logfile log_1M.csv) >> result-spec-1 2>&1
 
-echo "########## spec_modified.qtl 5M ##########"
-echo "########## spec_modified.qtl 5M ##########" >> result-spec-1
-(gtime python3 example_1_pre_eval.py --bits 30 --logfile log_5M.csv) >> result-spec-1 2>&1
+#echo "########## spec_modified.qtl 5M ##########"
+#echo "########## spec_modified.qtl 5M ##########" >> result-spec-1
+#(gtime python3 example_1_pre_eval.py --bits 30 --logfile log_5M.csv) >> result-spec-1 2>&1
 
