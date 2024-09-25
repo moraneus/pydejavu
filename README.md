@@ -141,7 +141,8 @@ used in our paper. This archive includes three folders named `example_1`, `examp
 each corresponding to a different experiment. Each example folder contains all the necessary 
 files to run the experiment.
 
-- Download the [experiments.zip](https://raw.githubusercontent.com/moraneus/pydejavu/main/experiments/experiments.zip) file and extract it:
+- Download the [experiments.zip](https://raw.githubusercontent.com/moraneus/pydejavu/main/experiments/experiments.zip) 
+  file and extract it:
     ```bash
     unzip experiments.zip
     ```
@@ -151,7 +152,7 @@ files to run the experiment.
     ```
    Replace `X` with the example number (1 to 3).
 
-- Execute the experiment using the provided Python script:
+- Execute the experiment using the provided Python script. Make sure you are execute it from the virtual environment.
     ```bash
     python3 example.py --logfile log_10K.csv
     ```

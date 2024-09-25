@@ -122,28 +122,30 @@ event directly to DejaVu for evaluation. Without any handler definitions, PyDeja
 the same as `DejaVu` without the operational phase.
 
 ```python
-y = 0
 last_seen_q = False
+y = 0
 
-
-# Define operational event handlers
-@event("p") -> Tuple[str | bool | int, ...]
-def handle_p(arg_x: int):
+@event("p")
+def handle_p(arg_x: int) -> Tuple[Union[str, int, bool], ...]:
     global y, last_seen_q
-    x_lt_y = arg_x < y
+    x_lt_y = last_seen_q and arg_x < y
     last_seen_q = False
-    return "p", arg_x, x_lt_y
-
+    return "p_q", arg_x, y, x_lt_y
 
 @event("q")
-def handle_q(arg_y: int) -> List[str | bool | int]:
+def handle_q(arg_y: int) -> None:
     global y, last_seen_q
     y = arg_y
     last_seen_q = True
-    return ["q", arg_y]
+
+@event("r")
+def handle_r(arg_x: int, arg_y: int) -> Tuple[Union[str, int], ...]:
+    global last_seen_q
+    last_seen_q = False
+    return "r", arg_x, arg_y
 ```
-This code defines two operational event handlers, `handle_p` and `handle_q`, which are responsible for processing 
-events named **"p"** and **"q"** respectively. 
+This code defines three operational event handlers, `handle_p`, `handle_q`, and `handle_r`, which are responsible for processing 
+events named **"p"**, **"q"**, and **"r"** respectively. 
 These handlers are part of the two-phase runtime verification process facilitated by `PyDejaVu`, 
 where events are processed in real-time using Pythonic operations, and the results can influence 
 the monitoring and verification against a formal specification.

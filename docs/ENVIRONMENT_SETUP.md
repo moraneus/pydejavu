@@ -34,12 +34,20 @@ Make sure to replace `/usr/lib/jvm/java-22-openjdk-amd64` with the path where Ja
 
 SDKMAN! is a tool for managing parallel versions of multiple SDKs, including Scala. 
 Install SDKMAN! and then use it to install Scala version 2.12.18.
+
+👉 **Note**: Since `DejaVu` supports only Scala version 2.X.X due to its limitations, 
+we have used Scala 2.X.X in our setup.
 ```bash
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk install scala 2.12.18
 ```
+
 Set the `SCALA_HOME` environment variable to point to the Scala installation directory:
+```bash
+export SCALA_HOME="$HOME/.sdkman/candidates/scala/current
+export PATH=$SCALA_HOME/bin:$PATH
+```
 
 ## Persist Environment Variables (Optional)
 
