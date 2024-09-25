@@ -73,7 +73,7 @@ def setup_event_handlers(dejavu: Monitor):
         last_seen_q = True
 
     @event("r")
-    def handle_q(arg_x: int, arg_y: int) -> Tuple[Union[str, int], ...]:
+    def handle_r(arg_x: int, arg_y: int) -> Tuple[Union[str, int], ...]:
         nonlocal last_seen_q
         last_seen_q = False
         return "r", arg_x, arg_y
