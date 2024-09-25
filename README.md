@@ -43,84 +43,17 @@ With `PyDejaVu`, you can take advantage of Python's powerful capabilities in the
 on the declarative strength of DejaVu in the second phase, providing a comprehensive tool for runtime verification 
 in a wide range of applications.
 
-## Setting Up the Environment for PyDejavu
+
+## PyDejaVu Installation
+
 `PyDejaVu` is a Unix-compatible tool designed for cross-platform use, initially developed on macOS 
 and tested on both macOS and Ubuntu Linux distributions. 
 While specifically tested on these two platforms, `PyDejaVu` may potentially work on other Unix-like 
 systems as well, though this would require further testing to confirm. 
 It's important to note that as a Unix-based tool, `PyDejaVu` is not natively compatible with 
-Windows and may require additional setup and modifications, to run on Windows machines. 
+Windows and may require additional setup and modifications, to run on Windows machines.
 
-### Install Python
-
-Ensure you have Python installed on your system. 
-`PyDejavu` supports Python versions 3.8, 3.9, 3.10, 3.11, and 3.12.
-
-### Install Java
-`PyDejavu` requires Java, so install it on your system. 
-You can use the OpenJDK distribution, specifically version 22 in this setup.
-Install Java (Temurin distribution for Ubuntu):
-```bash
-sudo apt-get update
-sudo apt-get install -y openjdk-22-jdk
-```
-
-After installation, set the `JAVA_HOME` environment variable to point to the Java installation directory:
-```bash
-export JAVA_HOME=/usr/lib/jvm/java-22-openjdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH
-```
-Make sure to replace `/usr/lib/jvm/java-22-openjdk-amd64` with the path where Java is installed on your system.
-
-### Install SDKMAN! and Scala
-
-SDKMAN! is a tool for managing parallel versions of multiple SDKs, including Scala. 
-Install SDKMAN! and then use it to install Scala version 2.12.18.
-```bash
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-sdk install scala 2.12.18
-```
-Set the `SCALA_HOME` environment variable to point to the Scala installation directory:
-
-### Persist Environment Variables (Optional)
-
-To make these environment variables persistent across sessions, add them to your shell's configuration file. 
-For bash, this would be `~/.bashrc`, or for zsh, it would be `~/.zshrc`.
-```bash
-echo 'export JAVA_HOME=/usr/lib/jvm/java-22-openjdk-amd64' >> ~/.bashrc
-echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
-echo 'export SCALA_HOME="$HOME/.sdkman/candidates/scala/current"' >> ~/.bashrc
-echo 'export PATH=$SCALA_HOME/bin:$PATH' >> ~/.bashrc
-```
-After adding these lines, apply the changes with:
-```bash
-source ~/.bashrc  # or source ~/.zshrc if using zsh
-```
-
-### Verify Installation and Path Configuration
-
-Verify that the installations and paths are set up correctly by checking the versions:
-```bash
-# Verify Python
-python --version
-
-# Verify Java
-java -version
-
-# Verify Scala
-scalac -version
-```
-If these commands return the correct versions, your environment is correctly set up.
-
-## PyDejaVu Installation
-
-Before proceeding, ensure your environment is properly configured according to the instructions 
-in the [previous section](#setting-up-the-environment-for-pydejavu). This step is crucial for the 
-successful execution of `PyDejaVu` and helps prevent potential issues arising from an incorrectly 
-set up environment.
-
-Here we suggest three metods of installation:
+Here we suggest three methods of installation:
 - [**Pip Installation**](#pip-installation): 
 For users who need to use `PyDejaVu` without making changes to the codebase, pip offers a quick 
 and straightforward setup. 
@@ -129,6 +62,8 @@ This method allows you to focus on using the tool rather than managing its depen
 Docker provides a robust solution for running `PyDejaVu` in an isolated and consistent environment. 
 This method is ideal for users who prefer not to modify their local system or manage package 
 installations manually.
+With Docker, you don't need to prepare your system for running `PyDejaVu`, as the Docker image comes 
+pre-packaged with all the necessary Scala and Java dependencies required for `DejaVu`.
 - [**Source Code Installation**](#source-code-installation): 
 Installing the source code is a great option if you need more flexibility and control over the `PyDejaVu` project. 
 Here are some reasons why you might choose this method:
@@ -139,24 +74,51 @@ Here are some reasons why you might choose this method:
 
 ### Pip Installation
 
-#### Step 1: Install PyDejaVu
+👉 Before proceeding, ensure your environment is properly configured according to the instructions 
+in the [environment setup guide](docs/ENVIRONMENT_SETUP.md). This step is crucial for the 
+successful execution of `PyDejaVu` and helps prevent potential issues arising from an incorrectly 
+set up environment.
 
-To install the latest version of `PyDejaVu` from PyPI, run:
+#### Step 1: Create Virtual Environment
+Creating a virtual environment is highly recommended when installing `PyDejaVu`. 
+A virtual environment isolates your project's dependencies from the global Python installation, 
+preventing package conflicts and making dependency management easier.
+
+Create the Virtual Environment:
+```bash
+python3 -m venv pydejavu-env
+```
+This command creates a new directory called pydejavu-env containing the isolated Python environment.
+
+Activate the Virtual Environment:
+```bash
+source pydejavu-env/bin/activate
+```
+After activation, your command prompt will change to indicate that you are now using the virtual environment.
+
+👉**Note**: Remember to activate the virtual environment each time you start a new session to 
+ensure you are using the isolated environment.
+
+#### Step 2: Install PyDejaVu
+
+With the virtual environment activated, install the latest version of `PyDejaVu` from PyPI:
 ```bash
 pip install pydejavu-rv
 ```
-This command will download and install `PyDejaVu` along with all its dependencies.
+This command will download and install `PyDejaVu` along with all its dependencies into your virtual environment.
 
 To upgrade an existing installation to the latest version:
 ```bash
 pip install --upgrade pydejavu-rv
 ```
 
-#### Step 2: Verify the Installation
+#### Step 3: Verify the Installation
 After installation, verify that `PyDejaVu` has been installed correctly:
 ```bash
 pip show pydejavu-rv
 ```
+This command should display details about the `PyDejaVu` package, confirming a 
+successful installation within your virtual environment.
 You should see output similar to:
 ```bash
 Name: PyDejaVu-RV
@@ -169,6 +131,35 @@ License: Apache-2.0
 Location: /path/to/your/python/site-packages
 Requires: psutil, pyjnius, pytest, pytest-forked, pytest-xdist
 ```
+
+#### Step 4: Operate PyDejaVu
+To test the library and explore the capabilities of `PyDejaVu`, 
+you can download the 
+[experiments archive](https://raw.githubusercontent.com/moraneus/pydejavu/main/experiments/experiments.zip), 
+which contains the experiments 
+used in our paper. This archive includes three folders named `example_1`, `example_2` and  `example_3`, 
+each corresponding to a different experiment. Each example folder contains all the necessary 
+files to run the experiment.
+
+- Download the [experiments.zip](https://raw.githubusercontent.com/moraneus/pydejavu/main/experiments/experiments.zip) file and extract it:
+    ```bash
+    unzip experiments.zip
+    ```
+- Change directory to the example folder you wish to run:
+    ```bash
+    cd example_X
+    ```
+   Replace `X` with the example number (1 to 3).
+
+- Execute the experiment using the provided Python script:
+    ```bash
+    python3 example.py --logfile log_10K.csv
+    ```
+    For the log files we have the following options: `log_10K.csv`, `log_100K.csv`, `log_500K.csv`, and `log_1M.csv`.
+    So if one want run the experiment with a larger log file:
+    ```bash
+    python3 example.py --logfile log_1M.csv
+    ```
 
 #### 🛠️ Troubleshooting
 If you encounter issues during installation or usage of `PyDejaVu`, consider the following:
@@ -189,9 +180,16 @@ If you encounter issues during installation or usage of `PyDejaVu`, consider the
    applications, as `PyDejaVu` relies on a Java runtime.
 
 ### Docker Installation
+The Docker installation process automatically clones the latest `PyDejaVu` source code inside 
+the container. Unlike the standard installation method, it does not use the `pip install 
+pydejavu-rv` command. Instead, it builds and installs `PyDejaVu` directly from the cloned 
+source code within the Docker environment. 
+This approach ensures that you are running the most recent version of `PyDejaVu`,
+including the latest features and updates that may not yet be available through PyPI.
+
 
 #### Prerequisites
-Ensure Docker is installed on your system. You can download 
+Ensure Docker is installed. You can download 
 Docker from [here](https://docs.docker.com/engine/install/).
 
 #### Step 1: Clone the Repository
@@ -266,24 +264,47 @@ This command starts an interactive session inside the Docker container,
 where `PyDejaVu` is set up and ready to use.
 
 #### Step 4: Operate PyDejaVu
-Inside the Docker container, you can run `PyDejaVu` commands. For example:
-
-##### Example: Using the CLI
-```bash
-cd examples/cli
-python -m pydejavu --bits 20 --stats true --qtl sample.qtl --operational sample.pqtl --trace sample.log
-```
+Inside the Docker container, you can use `PyDejaVu` with no addition configuration. For example:
 
 ##### Example: Running a Pre-defined Monitor
 ```bash
-cd examples/pydejavu_monitors
+cd /app/examples/pydejavu_monitor
 python monitor_for_detecting_suspicious_login_patterns.py
 ```
+
+##### Example: Using the CLI
+```bash
+cd /app/examples/cli
+python -m pydejavu --bits 20 --stats true --qtl sample.qtl --operational sample.pqtl --trace sample.log
+```
+
+##### Example: Experiments
+Since we are using the `PyDejaVu` source code inside the Docker container 
+we have direct access to the experiment folders.
+
+- Change directory to the experiment folder you wish to test:
+    ```bash
+    cd /app/experiments/example_X
+    ```
+   Replace `X` with the example number (1 to 3).
+
+- Execute the experiments using the provided Python script:
+    ```bash
+    bash -i run_experiment
+    ```
+This script automates the execution of all experiments within the specified `example_X` folder. 
+It sequentially runs the experiments using different log files to evaluate PyDejaVu's performance 
+across varying trace sizes (10K, 100K, 500K, and 1M). Upon completion, the results will be saved 
+in a file named `result-spec-X`.
 
 #### 🛠️ Troubleshooting
 
 - **Docker Service**: Ensure the Docker service is running before building or running containers.
-- **Persistent Storage**: To persist data between container runs, use Docker volumes:
+- **Persistent Storage**: To persist data between container runs and share files between your host
+    machine and the Docker container, you can use Docker volumes. 
+    This is particularly useful when you have predefined `PyDejaVu` monitor files or other 
+    resources on your local machine that you want to use inside the container without 
+    copying or rewriting them:
     ```bash
     docker run -it -v /path/on/host:/path/in/container pydejavu
     ```
@@ -318,9 +339,10 @@ python monitor_for_detecting_suspicious_login_patterns.py
 
 ### Source Code Installation
 
-#### Prerequisites
-
-Ensure that you have Python 3.8 or higher installed on your system. 
+👉 Before proceeding, ensure your environment is properly configured according to the instructions 
+in the [environment setup guide](docs/ENVIRONMENT_SETUP.md). This step is crucial for the 
+successful execution of `PyDejaVu` and helps prevent potential issues arising from an incorrectly 
+set up environment.
 
 #### Step 1: Clone the Repository
 
@@ -335,10 +357,10 @@ cd pydejavu
 This project uses [Poetry](https://python-poetry.org/) for managing dependencies and packaging. 
 Follow these steps to set up your development environment:
 
-1. Create and activate a virtual environment (recommended):
+1. Create and activate a virtual environment:
     ```bash
-    python3 -m venv path/to/venv
-    source path/to/venv/bin/activate
+    python3 -m venv pydejavu-env
+    source pydejavu-env/bin/activate
     ```
 2. Install Poetry:
     ```bash
@@ -358,6 +380,43 @@ poetry install
 ```
 This will create a `poetry.lock` file and install all necessary dependencies for the project.
 
+#### Step 4: Operate PyDejaVu
+After the installation is finished we can use `PyDejaVu` with no addition configuration.
+
+##### Example: Running a Pre-defined Monitor
+👉**Note**: Make sure you are in the root directory of `PyDejaVu`.
+```bash
+cd examples/pydejavu_monitor
+python monitor_for_detecting_suspicious_login_patterns.py
+```
+
+##### Example: Using the CLI
+👉**Note**: Make sure you are in the root directory of `PyDejaVu`.
+```bash
+cd /app/examples/cli
+python -m pydejavu --bits 20 --stats true --qtl sample.qtl --operational sample.pqtl --trace sample.log
+```
+
+##### Example: Experiments
+Since we are using the `PyDejaVu` source code we have direct access to the experiment folders.
+
+👉**Note**: Make sure you are in the root directory of `PyDejaVu`.
+- Change directory to the experiment folder you wish to test:
+    ```bash
+    cd experiments/example_X
+    ```
+   Replace `X` with the example number (1 to 3).
+
+- Execute the experiments using the provided Python script:
+    ```bash
+    ./run_experiment
+    ```
+This script automates the execution of all experiments within the specified `example_X` folder. 
+It sequentially runs the experiments using different log files to evaluate PyDejaVu's performance 
+across varying trace sizes (10K, 100K, 500K, and 1M). Upon completion, the results will be saved 
+in a file named `result-spec-X`.
+
+
 #### 🛠️ Troubleshooting
 If you encounter issues during installation or while running the project, consider the following:
 
@@ -367,324 +426,153 @@ If you encounter issues during installation or while running the project, consid
 
 ## Usage
 
-`PyDejaVu` is a versatile tool that bridges Python's operational capabilities with the rigorous, 
-declarative runtime verification offered by the DEJAVU tool. 
-It can be used for two-phase Runtime Verification (RV) processing, 
-allowing you to monitor properties of event streams using both Python and DEJAVU's first-order logic specifications.
-`PyDejaVu` is available both as a command-line tool and as a Python module that can be imported into your projects.
+In this section, we present a simple usage of the tool divided into two 
+examples. The first example demonstrates how users can easily operate `DejaVu` directly 
+from `PyDejaVu`. The second example builds upon the first, showing how to enhance the 
+expressiveness of your application by leveraging the power of `PyDejaVu`. 
+For more advanced usage and explanations, please refer to the [documentation](docs/ADVANCED_USAGE.md).
 
+### Example 1
+Consider a simple filesystem mechanism that handles several key events. The filesystem
+allows opening a file with the an `open(F, f, m, s)`, carrying as arguments the
+folder name `F`, the filename `f`, the access mode `m` (read or write), and the size
+`s` which is the maximal number of bytes that can be written. The `close(f)` event
+indicates that a file `f` has been closed. The write event `write(f, d)` contains the
+filename and the data `d` (a string) being written. We shall assume that new
+data are appended to the existing file, which is not important for this example
+but it will be for the subsequent example. Additionally, the system
+supports `create(F)` and `delete(F)` events, which represent the creation or deletion
+of a folder.
+The requirement we are verifying states that if data is written to a file, the
+file must have been opened in write mode, not closed since, and must reside in
+a folder that has been created and not deleted since.
 
-### Command-Line Interface (CLI) Usage
+```python
+from pydejavu.core.monitor import Monitor
 
-To use `PyDejaVu` from the command line, provide specific input files and parameters via command-line options:
+specification = """
+prop example: forall f . forall d . 
+   write(f, d) ->
+     (exists F . Exists s . 
+       ((!close(f) S open(F, f, "w", s)) & (!delete(F) S create(F))))
+"""
 
-#### Command-Line Options
+monitor = Monitor(specification)
 
-- `--bits`: Defines the number of bits allocated for variables in the Binary Decision Diagrams (BDDs) 
-used during the verification process. Increasing this value can improve precision but may impact performance. 
-*(Default: 20)*
+events = [ 
+    {"name": "create", "args": ["tmp"]}, 
+    {"name": "open", "args": ["tmp", "f1", "w", "10"]},
+    {"name": "write", "args": ["f1", "some text"]},
+    {"name": "close", "args": ["f1"]},
+    {"name": "delete", "args": ["tmp"]}
+]
 
-- `--stats`: Toggles the collection of runtime statistics. Set to `true` to collect statistics, 
-providing insights into performance and verification metrics, or `false` to disable. *(Default: false)*
-
-- `--qtl`: Specifies the path to the QTL (Quantified Temporal Logic) file, which contains the temporal logic 
-specifications for monitoring. This file follows the same format as required by DejaVu and is mandatory 
-for execution.
-
-- `--operational`: Specifies the path to the operational phase file, which includes dynamic event 
-handlers to be used during runtime verification. These handlers are essential for processing events according 
-to custom logic.
-
-- `--trace`: Specifies the path to the trace file containing the event stream data for the monitor to analyze. 
-This file is required to perform the verification process.
-
-#### Example
-```bash
-python3 -m pydejavu --bits 20 --stats true --qtl /path/to/spec.qtl --operational /path/to/events.pqtl --trace /path/to/trace.log
+for e in events:
+    monitor.verify(e)
+monitor.end()
 ```
 
-This command initializes the monitor with 20 bits, enables statistics, 
-and uses the specified qtl, operational, and trace files for runtime verification.
+This code snippet demonstrates how to operate `DejaVu` directly 
+from `PyDejaVu` to perform runtime verification based on a formal specification written in first-order logic.
+First, the Monitor class is imported from `pydejavu.core.monitor`,
+and the specification, named as `example`, is defined as a multi-line string. 
+The monitor is then initialized with this specification, setting up the verification environment.
+A list of events is created to simulate a sequence of I/O operations: creating a folder (`create`), 
+opening a file (`open`), writing to it (`write`), closing it (`close`), 
+and finally deleting the hosting folder (`delete`). 
+Each event is a dictionary containing the event name and its arguments.
+The events are processed in a loop where each event is passed to the `monitor.verify(e)` method. 
+In this case, where no event handlers are defined, the events are forwards directly to the declarative phase 
+for verification against the specification. 
+After all events are processed, `monitor.end()` is called to finalize the evaluation.
+This step is crucial for obtaining statistics results and for the monitor 
+to release resources appropriately.
 
 
-### Python Module Usage
-`PyDejaVu` can also be imported as a Python module into your scripts or 
-projects for more flexible and integrated runtime verification.
+### Example 2
 
-### Step 1: Import the Library
-To use `PyDejaVu` as a module, import the necessary classes and functions into your Python script:
 ```python
 from pydejavu.core.monitor import Monitor, event
-```
 
-### Step 2: Define Your Specification
-
-Start by defining the properties you want to monitor using a first-order logic specification. 
-These properties describe the conditions or invariants that you expect to hold over the event streams.
-
-```python
 specification = """
- prop example : forall x . forall y . ((p(x, "true") & @q(y)) -> P r(x, y))
+prop example: forall f . 
+  !write(f, "false") & (write(f, "true") ->
+    (exists F . ((!close(f) S open(F, f, "w")) & (!delete(F) S create(F)))))
 """
+monitor = Monitor(specification)
+total_sizes: dict[str, int] = {}
+
+@event("open")
+def open(F: str, f: str, m: str, s: int):
+    global total_sizes
+    if mode == "w":
+        total_sizes[f] = s
+    return ["open", F, f, m]
+
+@event("close")
+def close(f: str):
+    global total_sizes
+    del total_sizes[f]
+    return ["close", f]
+
+@event("write")
+def write(f: str, d: str):
+    global total_sizes
+    if f not in total_sizes:
+        total_sizes[f] = 0
+    data_len = len(d)
+    ok = total_sizes[f] >= data_len
+    if ok:
+        total_sizes[f] -= data_len
+    return ["write", f, ok]
+
+events = [ 
+    {"name": "create", "args": ["tmp"]}, 
+    {"name": "open", "args": ["tmp", "f1", "w", "10"]},
+    {"name": "write", "args": ["f1", "some text"]},
+    {"name": "close", "args": ["f1"]},
+    {"name": "delete", "args": ["tmp"]}
+]
+
+for e in events:
+    monitor.verify(e)
+monitor.end()
 ```
 
-### Step 3: Initialize the Monitor
-Create an instance of the Monitor class, passing in your specification and other optional parameters. The Monitor constructor allows you to customize several aspects of the runtime verification process:
-
-- `i_spec`: The specification string that defines the properties you want to monitor.
-- `i_bits`: Defines the number of bits allocated for variables in the Binary Decision Diagrams (BDDs) 
-used during the verification process. Increasing this value can improve precision but may impact performance. 
-*(Default: 20)*
-  - `i_mode`: An optional parameter that specifies the mode of operation. 
-  This can be used to switch between different verification output modes:
-  - `debug`: Enables comprehensive logging and diagnostic messages to help developers understand the 
-  internal workings of the monitoring process, debug issues, and verify the correctness of the implementation. 
-  This mode is especially useful during development and troubleshooting.
-  - `profile`: Activates detailed performance profiling of the monitored properties, 
-  recording metrics that can be analyzed to understand the efficiency and complexity of the property evaluations.
-- `i_statistics`: A boolean flag that, if set to True, enables the collection of statistics during the 
-verification process. (Default: False)
-- `i_logging_level`: An optional parameter to define the logging level. 
-If not provided, the default logging level is set to INFO.
-
-Here is how you can initialize the Monitor:
-
-```python
-monitor = Monitor(i_spec=specification, i_bits=8)
-```
-
-#### Alternative Options for Monitor Initialization
-While initializing a Monitor in `PyDejaVu` using a specification is common, you also have the flexibility to 
-initialize the monitor using a pre-synthesized Scala monitor or a compiled monitor JAR file. 
-These options are particularly useful when you already have a monitor synthesized or compiled outside the 
-typical specification-based workflow.
-
-##### Option 1: Initializing with a Synthesized Scala Monitor
-In this option, you initialize the Monitor and then compile a Scala monitor file that has already been synthesized.
-```python
-# Initialize the Monitor with custom settings
-monitor = Monitor(i_bits=20, i_statistics=False)
-
-# Compile the synthesized Scala monitor
-compile_jar_path = monitor.compile_monitor('/path/to/TraceMonitor.scala')
-
-# Link the monitor to the compiled JAR file
-monitor.linkage_monitor(compile_jar_path)
-```
-
-##### Option 2: Initializing with a Pre-Compiled Monitor JAR
-If you already have a compiled monitor in the form of a JAR file, you can directly link this JAR file to the 
-Monitor after initialization.
-```python
-# Initialize the Monitor with custom settings
-monitor = Monitor(i_bits=20, i_statistics=False)
-
-# Link the monitor directly to the pre-compiled JAR file
-monitor.linkage_monitor('/path/to/TraceMonitor.jar')
-```
-
-### Step 4: Sharing Data Between Handlers
-When handling events, you may need to share data between different event handlers. 
-There are two primary ways to achieve this in `PyDejaVu`:
-
-##### Global Variables:
- - You can use global variables to store and share data between handlers. 
-This approach is straightforward and effective when the data to be shared is simple and doesn't need to 
-persist beyond the lifetime of the program.
-##### `PyDejaVu` Shared Variables API:
-- `PyDejaVu` provides a built-in API for managing shared variables, which is particularly useful for more 
-complex scenarios or when you want to maintain state across different parts of your program. 
-- You can store and retrieve shared data using `monitor.set_shared("key", value)` and `monitor.get_shared("key", default_value)` 
-respectively. This method ensures that your data is managed within the `PyDejaVu` framework, offering more 
-control and avoiding potential issues with global variables.
-- For example:
-    ```python
-    monitor.set_shared("last_seen_q", False)
-    last_seen_q = monitor.get_shared("last_seen_q", False)
-    ```
-- Another type of shared variable function is the `monitor.last_eval("spec_name")` function which is a powerful feature 
-that allows you to access the last evaluation result of a specified property. This can be especially useful 
-within your event handlers when you need to consider the declarative verdict in your operational logic.
-For example, within an handler function, you can check the last evaluation result of property "example" before 
-making further decisions:
-    ```python
-  verdict = monitor.last_eval("example")
-  if verdict:
-  # Perform additional operations based on the last evaluation result
-    pass
-
-    ```
-
-
-### Step 5: Define Operational Event Handlers
-Define Python functions to handle the events specified in your logic. 
-These handlers perform real-time operations on the events, such as arithmetic calculations, string manipulations, 
-or state tracking. The handlers are decorated with the `@event("event_name")` decorator, 
+This code differs from the previous example by incorporating operational event handlers that 
+perform real-time computations and state management before events are passed to the 
+declarative phase for verification. In the earlier code, events were directly forwarded to 
+the declarative phase without any operational processing. 
+Here, the `@event` decorator is used to define custom handlers for the `open`, `close`,
+and `write` events, enabling the code to maintain and manipulate state during the operational 
+phase. Generally, the handlers are decorated with the `@event("event_name")` decorator, 
 linking them to specific events in your specification.
 This definition is optional; if no handler is defined for a specific event, `PyDejaVu` will forward the 
 event directly to DejaVu for evaluation. Without any handler definitions, PyDejaVu functions 
-the same as DejaVu without the operational phase.
+the same as `DejaVu` without the operational phase.
 
-```python
-y = 0
-last_seen_q = False
+A key difference is the introduction of the `total_sizes` dictionary, 
+which tracks the remaining allowed write sizes for each file. 
+In the `open` handler, the code checks if the file is opened in write mode `"w"` and 
+initializes the total allowed size `s` for that file in the `total_sizes` dictionary. 
+The `write` handler then uses this information to ensure that the length of the data 
+being written does not exceed the remaining allowed size. 
+It calculates the length of the data `d`, compares it against the remaining size for the file, 
+and updates the `total_sizes` accordingly. 
+If the `write` operation exceeds the allowed size, an `ok` flag is set to `False`, 
+indicating that the `write` is not permitted.
 
+These operational event handlers allow for immediate enforcement of constraints and 
+preliminary checks before events are evaluated against the formal specification in the 
+declarative phase. By performing these computations upfront, 
+the code can prevent invalid or undesirable events from proceeding further, 
+enhancing efficiency and providing immediate feedback. 
+This integration of operational logic with declarative specifications showcases how `PyDejaVu` 
+can be used to build more robust and responsive runtime verification systems 
+compared to the previous example where such operational checks were absent.
 
-# Define operational event handlers
-@event("p") -> Tuple[str | bool | int, ...]
-def handle_p(arg_x: int):
-    global y, last_seen_q
-    x_lt_y = arg_x < y
-    last_seen_q = False
-    return "p", arg_x, x_lt_y
-
-
-@event("q")
-def handle_q(arg_y: int) -> List[str | bool | int]:
-    global y, last_seen_q
-    y = arg_y
-    last_seen_q = True
-    return ["q", arg_y]
-```
-This code defines two operational event handlers, `handle_p` and `handle_q`, which are responsible for processing 
-events named **"p"** and **"q"** respectively. 
-These handlers are part of the two-phase runtime verification process facilitated by `PyDejaVu`, 
-where events are processed in real-time using Pythonic operations, and the results can influence 
-the monitoring and verification against a formal specification.
-
-The `@event("p")` decorator is used to link the `handle_p` function to the event **"p"**. 
-When an event named **"p"** is encountered in the event stream, `PyDejaVu` will automatically call the `handle_p` 
-function to process it.  The `handle_p(arg_x: int)` function is designed to handle the **"p"** event. 
-It takes an integer argument `arg_x` and uses the global variables `y` and `last_seen_q` to perform its operations.
-
-Similarly, the `@event("q")` decorator links the `handle_q` function to the **"q"** event, 
-ensuring that this function is called when a **"q"** event is encountered.
-
-#### Handlers Returning Values
-Handlers can return one of the following types:
-
-- `Tuple[str | bool | int, ...]`: The first element is the event name, followed by event parameters 
-(which can be strings, integers, or booleans).
-- `List[str | int | bool]`: The first element is the event name, followed by event parameters 
-(which can be strings, integers, or booleans).
-- `None` or no return statement: In this case, `PyDejaVu` does not forward any event to the declarative phase, 
-indicating only local computation was performed for later use.
-
-### Step 6: Process Event Streams
-You can now process streams of events using `PyDejaVu`. 
-For instance, you can read events from a log file in chunks and pass them to the monitor for processing. 
-The monitor will evaluate the events against your specifications.
-
-```python
-for chunk in monitor.read_bulk_events_as_dict('/path/to/trace/file', chunk_size=1000):
-    results = monitor.verify.process_events(chunk)
-    monitor.logger.debug(f"Processed chunk of {len(chunk)} events")
-    for result in results:
-        monitor.logger.debug(result)
-```
-You are not required to use the event iteration API to process events in `PyDejaVu`. 
-Instead, you have the flexibility to process events individually or in batches using the following methods:
-
-- Processing Multiple Events:
-You can use the `monitor.verify.process_events(events)` or just `monitor.verify(events)` methods to process a batch (list) of events at once. 
-This method is particularly useful when you have a list of events that need to be verified together.
-
-- Processing a Single Event:
-Alternatively, you can use the `monitor.verify.process_event(event)` or just `monitor.verify(event)` methods to process a single event whenever needed. 
-This allows you to handle events as they occur in real-time or in specific scenarios where events are 
-processed one at a time.
-
-- Flexible Event Processing:  
-`PyDejaVu` provides flexibility in how you process events by allowing you to use either `monitor.verify(events)` to process a list of events or `monitor.verify(event)` to process a single event. 
-The method automatically handles the input based on whether it is a single event or a batch of events.
-
-
-🔔 Each event can be either a dictionary of type `Dict[str, Any]` or a `string`.
-
-If the event is a dictionary, it should include the following two keys:
-- `name`: The name of the event.
-- `args`: A list or dictionary containing the arguments associated with the event.
-An example of a dictionary event is: `{'name': 'key', 'args': [arg1, arg2, ...]}`.
-
-Alternatively, an event can be a string where the event name and arguments are separated by commas
-without spaces. For example: `"event_name,arg1,arg2,..."`
-
-When processing multiple events, you should provide a list of such dictionaries or 
-strings (i.e., `List[[Dict[str, Any]]` or `List[str]`).
-This structure ensures that each event is correctly recognized and processed by the `PyDejaVu` verification engine.
-
-### Step 7: Finalize The Evaluation
-Since DejaVu cannot detect when the evaluation ends because `PyDejaVu` forwards events asynchronously 
-(the Python part works in an online manner with DejaVu), 
-we must notify DejaVu at the end of the evaluation. 
-Otherwise, the result file might not close properly. To ensure proper termination, 
-call `monitor.end()` after processing all events.
-Additionally, we have the `monitor.stat()` function that notifies `DejaVu` to execute its internal `end` function, 
-which summarizes the results up to that point.
-When calling to `monitor.end()` the `monitor.stat()` is called automatically. Below is an example of how the statistics looks like:
-```bash
-Processed 1000000 events
-
-55392 errors detected!
-
-==================
-  Event Counts:
-------------------
-  p : 333432
-  q : 333029
-  r : 333539
-==================
-```
-
-## Trace File Format
-The trace file used by `PyDejaVu` is identical to the one is used in `DejaVu`, 
-and it should be in a comma-separated value (CSV) format,
-similar to the format described in this [CSV file format guide](http://edoceo.com/utilitas/csv-file-format). 
-The file defines a sequence of events that `PyDejaVu` will process during runtime verification.
-
-### Example Trace File
-Consider the following example of a trace file:
-```csv
-start,process,1
-update,process,2.5
-update,process,True
-complete,process
-```
-This trace file describes four events with no leading spaces:
-1. `start,process,1`
-2. `update,process,2.5`
-3. `update,process,True`
-4. `complete,process`
-
-Each line in the file corresponds to an event, where the first value is the event name, 
-and the subsequent values are the arguments passed to that event.
-
-### Handling of Booleans and Floats
-`PyDejaVu` provides special handling for certain string values and numeric types to support flexible and 
-accurate runtime verification.
-
-#### Boolean Handling
-Strings that represent boolean values, specifically "False", "false", "True", and "true", will be automatically 
-interpreted as booleans by `PyDejaVu`. This means that when such strings are encountered in the trace file, 
-they are treated as the boolean values False or True respectively.
-
-#### Float Handling:
-During the operational phase, `PyDejaVu` can handle floating-point numbers, 
-allowing you to perform operations with decimal precision.
-However, when these values are passed to the declarative phase 
-(for example, in the logic specified in your properties), they will be automatically cast to integers. 
-This casting ensures compatibility with the DejaVu formal verification process, which typically operates on integer values.
-
-Example:
-```csv
-update,process,2.5
-```
-In the operational phase, this value can be handled as a float (2.5). 
-When passed to the declarative phase, it will be cast to 2.
-
-
-## Examples
-You can find comprehensive examples of monitors in the [examples](https://github.com/moraneus/pydejavu/tree/main/examples/pydejavu_monitor) folder 
+### More Usage Examples
+You can find more comprehensive usage examples of monitors in the [examples](https://github.com/moraneus/pydejavu/tree/main/examples/pydejavu_monitor) folder 
 and the [experiments](https://github.com/moraneus/pydejavu/tree/main/experiments) folder. These folders contain various use cases and demonstrations 
 of how to effectively use `PyDejaVu` for runtime verification.
 
