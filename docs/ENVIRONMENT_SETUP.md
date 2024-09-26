@@ -1,11 +1,7 @@
 # Environment Setup for PyDejavu
 
-`PyDejaVu` is a Unix-compatible tool designed for cross-platform use, initially developed on macOS 
-and tested on both macOS and Ubuntu Linux distributions. 
-While specifically tested on these two platforms, `PyDejaVu` may potentially work on other Unix-like 
-systems as well, though this would require further testing to confirm. 
-It's important to note that as a Unix-based tool, `PyDejaVu` is not natively compatible with 
-Windows and may require additional setup and modifications, to run on Windows machines. 
+Here we will describe the environment setup needed for `PydejaVu`, 
+including the Python requirements and steps for installing Java and Scala.
 
 ## Install Python
 

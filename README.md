@@ -8,7 +8,7 @@
 
 `PyDejaVu` is a Python library that wraps the original [DejaVu](https://github.com/havelund/dejavu/tree/master) binary, 
 providing a bridge between Python and the 
-Java-based DejaVu runtime verification tool. It is a powerful tool designed for two-phase 
+Scala-based (and JVM-based) DejaVu runtime verification tool. It is a powerful tool designed for two-phase 
 Runtime Verification (RV) processing, similar to the [Tp-DejaVu](https://github.com/moraneus/TP-DejaVu) tool, 
 combining the flexibility and expressiveness of 
 Python with the rigorous, declarative monitoring capabilities of 
@@ -27,21 +27,10 @@ the DejaVu tool.
 
 2. **Declarative Monitoring (Phase 2):**
    - The second phase is declarative and leverages the DejaVu tool to perform monitoring against a first-order 
-   logic specification. This phase ensures that the runtime behavior conforms to the formal properties 
+   past time temporal logic specification. This phase ensures that the runtime behavior conforms to the formal properties 
    defined in the specification. By integrating with DejaVu, `PyDejaVu` provides a robust framework for verifying 
-   that the system adheres to specified safety and liveness properties, making it suitable for applications requiring 
+   that the system adheres to specified safety properties, making it suitable for applications requiring 
    high levels of assurance.
-
-#### Combining Python and DEJAVU
-
-`PyDejaVu` bridges the gap between operational and declarative runtime verification, allowing users to define complex 
-behaviors and verify them against formal specifications. Whether you're performing real-time analysis of event 
-streams or ensuring that your system meets stringent correctness criteria, 
-PyDejaVu offers a versatile solution that can be tailored to meet your needs.
-
-With `PyDejaVu`, you can take advantage of Python's powerful capabilities in the first phase while relying 
-on the declarative strength of DejaVu in the second phase, providing a comprehensive tool for runtime verification 
-in a wide range of applications.
 
 
 ## PyDejaVu Installation
@@ -141,8 +130,8 @@ used in our paper. This archive includes three folders named `example_1`, `examp
 each corresponding to a different experiment. Each example folder contains all the necessary 
 files to run the experiment.
 
-- Download the [experiments.zip](https://raw.githubusercontent.com/moraneus/pydejavu/main/experiments/experiments.zip) 
-  file and extract it:
+- Extract the [experiments.zip](https://raw.githubusercontent.com/moraneus/pydejavu/main/experiments/experiments.zip) 
+  file:
     ```bash
     unzip experiments.zip
     ```
@@ -160,7 +149,12 @@ files to run the experiment.
     So if one want run the experiment with a larger log file:
     ```bash
     python3 example.py --logfile log_1M.csv
-    ```
+    ``` 
+    Please note that the `--logfile` option is specific to the `example.py` script. 
+    It was implemented to automate the execution of experiments by allowing iteration 
+    over different log file options. Users can create their own `PyDejaVu` monitor scripts 
+    that do not require any command-line flags at all.
+
 
 #### 🛠️ Troubleshooting
 If you encounter issues during installation or usage of `PyDejaVu`, consider the following:
@@ -431,17 +425,22 @@ In this section, we present a simple usage of the tool divided into two
 examples. The first example demonstrates how users can easily operate `DejaVu` directly 
 from `PyDejaVu`. The second example builds upon the first, showing how to enhance the 
 expressiveness of your application by leveraging the power of `PyDejaVu`. 
+By leverages `DejaVu`'s capabilities, `PyDejaVu` involves a few steps before it starts 
+the evaluation process. First, it analyzes and parses the specification to ensure it 
+meets the syntax of QTL (Quantified Temporal Logic). 
+Then, it compiles a Scala-based monitor. 
+This Scala compilation step may take some time, so don't be alarmed if there is a delay 
+during this process.
 For more advanced usage and explanations, please refer to the [documentation](docs/ADVANCED_USAGE.md).
+
 
 ### Example 1
 Consider a simple filesystem mechanism that handles several key events. The filesystem
 allows opening a file with the an `open(F, f, m, s)`, carrying as arguments the
-folder name `F`, the filename `f`, the access mode `m` (read or write), and the size
+folder name `F`, the filename `f` (technically a file id), the access mode `m` (read or write), and the size
 `s` which is the maximal number of bytes that can be written. The `close(f)` event
 indicates that a file `f` has been closed. The write event `write(f, d)` contains the
-filename and the data `d` (a string) being written. We shall assume that new
-data are appended to the existing file, which is not important for this example
-but it will be for the subsequent example. Additionally, the system
+filename and the data `d` (a string) being written. Additionally, the system
 supports `create(F)` and `delete(F)` events, which represent the creation or deletion
 of a folder.
 The requirement we are verifying states that if data is written to a file, the
@@ -462,7 +461,7 @@ monitor = Monitor(specification)
 
 events = [ 
     {"name": "create", "args": ["tmp"]}, 
-    {"name": "open", "args": ["tmp", "f1", "w", "10"]},
+    {"name": "open", "args": ["tmp", "f1", "w", "5"]},
     {"name": "write", "args": ["f1", "some text"]},
     {"name": "close", "args": ["f1"]},
     {"name": "delete", "args": ["tmp"]}
@@ -474,7 +473,8 @@ monitor.end()
 ```
 
 This code snippet demonstrates how to operate `DejaVu` directly 
-from `PyDejaVu` to perform runtime verification based on a formal specification written in first-order logic.
+from `PyDejaVu` to perform runtime verification based on a formal specification written in first-order 
+past time temporal logic.
 First, the Monitor class is imported from `pydejavu.core.monitor`,
 and the specification, named as `example`, is defined as a multi-line string. 
 The monitor is then initialized with this specification, setting up the verification environment.
@@ -483,11 +483,30 @@ opening a file (`open`), writing to it (`write`), closing it (`close`),
 and finally deleting the hosting folder (`delete`). 
 Each event is a dictionary containing the event name and its arguments.
 The events are processed in a loop where each event is passed to the `monitor.verify(e)` method. 
-In this case, where no event handlers are defined, the events are forwards directly to the declarative phase 
+In this case, where no event handlers are defined, the events are forwarded directly to the declarative phase 
 for verification against the specification. 
 After all events are processed, `monitor.end()` is called to finalize the evaluation.
 This step is crucial for obtaining statistics results and for the monitor 
 to release resources appropriately.
+
+#### Example 1 Output
+As shown in the following output snippet, this example reports no errors.
+
+```bash
+0 errors detected!
+
+==================
+  Event Counts:
+------------------
+  create : 1
+  open   : 1
+  delete : 1
+  close  : 1
+  write  : 1
+==================
+
+- Garbage collector was not activated
+```
 
 
 ### Example 2
@@ -506,7 +525,7 @@ total_sizes: dict[str, int] = {}
 @event("open")
 def open(F: str, f: str, m: str, s: int):
     global total_sizes
-    if mode == "w":
+    if m == "w":
         total_sizes[f] = s
     return ["open", F, f, m]
 
@@ -529,7 +548,7 @@ def write(f: str, d: str):
 
 events = [ 
     {"name": "create", "args": ["tmp"]}, 
-    {"name": "open", "args": ["tmp", "f1", "w", "10"]},
+    {"name": "open", "args": ["tmp", "f1", "w", "5"]},
     {"name": "write", "args": ["f1", "some text"]},
     {"name": "close", "args": ["f1"]},
     {"name": "delete", "args": ["tmp"]}
@@ -564,13 +583,33 @@ If the `write` operation exceeds the allowed size, an `ok` flag is set to `False
 indicating that the `write` is not permitted.
 
 These operational event handlers allow for immediate enforcement of constraints and 
-preliminary checks before events are evaluated against the formal specification in the 
-declarative phase. By performing these computations upfront, 
-the code can prevent invalid or undesirable events from proceeding further, 
-enhancing efficiency and providing immediate feedback. 
-This integration of operational logic with declarative specifications showcases how `PyDejaVu` 
-can be used to build more robust and responsive runtime verification systems 
-compared to the previous example where such operational checks were absent.
+preliminary checks before events are evaluated against the formal specification in 
+the declarative phase. By performing these computations upfront, the code can prevent 
+invalid or undesirable events from proceeding further, enhancing efficiency and providing 
+immediate feedback. This integration of operational logic with declarative specifications 
+showcases how `PyDejaVu` increases the expressiveness of the system, enabling more complex 
+and nuanced runtime verification scenarios compared to the previous example where such 
+operational checks were absent.
+
+#### Example 2 Output
+As shown in the following output snippet, this example reports one error because it failed when
+attempting to write the `"some text"` string into `f1`, which is limited to 5 characters.
+
+```bash
+1 errors detected!
+
+==================
+  Event Counts:
+------------------
+  create : 1
+  open   : 1
+  delete : 1
+  close  : 1
+  write  : 1
+==================
+
+- Garbage collector was not activated
+```
 
 ### More Usage Examples
 You can find more comprehensive usage examples of monitors in the [examples](https://github.com/moraneus/pydejavu/tree/main/examples/pydejavu_monitor) folder 
@@ -590,22 +629,39 @@ This log file is named with a timestamp to ensure that each run's output is dist
 
 ### Output Folder:
 
-The output folder contains several important files generated during the verification process:
+The `output` folder contains several important files generated during the verification process:
 - `ast.dot`: A Graphviz source file used to create an abstract syntax tree (AST) graph for the specification. 
 This file can be visualized using Graphviz to better understand the structure of the specification.
 - `TraceMonitor.jar`: If the specification was compiled into a Java archive, this file will contain the 
 compiled monitor.
 - `TraceMonitor.scala`: If the specification was synthesized into Scala code, this file will be generated. 
 It represents the synthesized monitor in Scala.
-- `resultFile`: This file contains the results of the original DEJAVU execution, capturing the outcomes of 
-the verification process. To ensure the `resultFile` is created correctly, 
-notify DejaVu to close the result file by running `dejavu.end()`.
-- `generated_trace.py`: This file is automatically generated when the user utilizes the CLI options. 
+
+[//]: # (- `resultFile`: This file contains the results of the original `DejaVu` execution, capturing the errors of )
+
+[//]: # (the verification process. When an error occurs, the event index is written to this file.)
+
+[//]: # (However, be aware that the `resultFile` remains empty if errors are detected during verification. )
+
+[//]: # (To ensure the `resultFile` is created correctly, )
+
+[//]: # (make sure to run `monitor.end&#40;&#41;` to notify `DejaVu` to close the result file and finalize )
+
+[//]: # (the execution.)
+- `generated_trace.py` (Optional): This file is automatically generated when the user utilizes the CLI options. 
 In this case, a `PyDejaVu` script is created in the working directory, 
 tailored to the user's input parameters for runtime verification.
 
 These output files provide a comprehensive overview of each execution, allowing you to analyze and debug the 
 behavior of your specifications in detail.
+
+```bash
+output/
+├── ast.dot
+├── TraceMonitor.jar
+├── TraceMonitor.scala
+└── generated_trace.py  (Optional)
+```
 
 ## Contributors - For `PyDejaVu` (Ordered by last name):
 * [Klaus Havelund](http://www.havelund.com), Jet Propulsion Laboratory/NASA, USA
