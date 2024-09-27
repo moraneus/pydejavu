@@ -141,20 +141,18 @@ files to run the experiment.
     ```
    Replace `X` with the example number (1 to 3).
 
-- Execute the experiment using the provided Python script. Make sure you are execute it from the virtual environment.
+- Execute the experiment using the provided bash script. **Make sure you are execute it from the virtual environment**.
     ```bash
-    python3 example.py --logfile log_10K.csv
+    ./run_experiment
     ```
-    For the log files we have the following options: `log_10K.csv`, `log_100K.csv`, `log_500K.csv`, and `log_1M.csv`.
-    So if one want run the experiment with a larger log file:
-    ```bash
-    python3 example.py --logfile log_1M.csv
-    ``` 
-    Please note that the `--logfile` option is specific to the `example.py` script. 
-    It was implemented to automate the execution of experiments by allowing iteration 
-    over different log file options. Users can create their own `PyDejaVu` monitor scripts 
-    that do not require any command-line flags at all.
-
+  In some cases, if `run_experiment` cannot be run, you need to make it executable using the following command:
+    ```bash 
+    chmod +x run_experiment
+    ```
+  This script automates the execution of all experiments within the specified `example_X` folder. 
+  It sequentially runs the experiments using different log files to evaluate PyDejaVu's performance 
+  across varying trace sizes (10K, 100K, 500K, and 1M). Upon completion, the results will be saved 
+  in a file named `result-spec-X`.
 
 #### 🛠️ Troubleshooting
 If you encounter issues during installation or usage of `PyDejaVu`, consider the following:
@@ -203,7 +201,8 @@ Ensure the Docker service is running, then build the image:
 ```bash
 docker build -t pydejavu .
 ```
-This command creates a Docker image named "pydejavu" with the following features:
+This command creates a Docker image named "pydejavu" (based on a `Dockerfile` located in the root project folder)
+with the following features:
 
 - Ubuntu based environment for running `PyDejaVu`.
 - Java and Scala installations.
@@ -283,7 +282,7 @@ we have direct access to the experiment folders.
     ```
    Replace `X` with the example number (1 to 3).
 
-- Execute the experiments using the provided Python script:
+- Execute the experiments using the provided bash script:
     ```bash
     bash -i run_experiment
     ```
@@ -402,7 +401,7 @@ Since we are using the `PyDejaVu` source code we have direct access to the exper
     ```
    Replace `X` with the example number (1 to 3).
 
-- Execute the experiments using the provided Python script:
+- Execute the experiments using the provided bash script:
     ```bash
     ./run_experiment
     ```
