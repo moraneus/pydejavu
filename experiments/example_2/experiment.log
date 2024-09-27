@@ -1,0 +1,235 @@
+=== RESULT ===
+########## spec 2 ##########
+########## spec_modified.qtl 10K ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_2/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 342 free / 0.003s / 0.003s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.007s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.002s / 0.009s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.001s / 0.01s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.002s / 0.012s total
+Resizing node table from 160033 to 320063
+
+551 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p_q : 3292
+  r   : 3425
+==================
+
+- Garbage collector was not activated
+An unexpected error occurred: type object 'TraceMonitor' has no attribute 'get_stat'
+Function 'process_events' - Elapsed time: 0.223212 seconds
+Function 'process_events' - Memory used: 76.03 MB
+Function 'process_events' - CPU used: 347.60%
+/usr/bin/time results
+cmd:python3 example_2_pre_eval.py --bits 20 --logfile log_10K.csv
+real: 0.50s
+user: 1.05s 
+sys: 0.05s 
+memory: 170560KB 
+cpu: 218%
+########## spec_modified.qtl 100K ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_2/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 342 free / 0.003s / 0.003s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.007s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.002s / 0.009s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.002s / 0.011s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.003s / 0.014s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.005s / 0.019s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.007s / 0.026s total
+Resizing node table from 640121 to 1280231
+Garbage collection #8: 1280231 nodes / 0 free / 0.024s / 0.05s total
+Resizing node table from 1280231 to 2560457
+
+5596 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p_q : 33450
+  r   : 33294
+==================
+
+- Garbage collector was not activated
+An unexpected error occurred: type object 'TraceMonitor' has no attribute 'get_stat'
+Function 'process_events' - Elapsed time: 1.010702 seconds
+Function 'process_events' - Memory used: 344.58 MB
+Function 'process_events' - CPU used: 222.40%
+/usr/bin/time results
+cmd:python3 example_2_pre_eval.py --bits 20 --logfile log_100K.csv
+real: 1.23s
+user: 2.45s 
+sys: 0.08s 
+memory: 445088KB 
+cpu: 204%
+########## spec_modified.qtl 500K ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_2/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 342 free / 0.004s / 0.004s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.007s / 0.011s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.002s / 0.013s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.001s / 0.014s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.001s / 0.015s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.004s / 0.019s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.009s / 0.028s total
+Resizing node table from 640121 to 1280231
+Garbage collection #8: 1280231 nodes / 0 free / 0.027s / 0.055s total
+Resizing node table from 1280231 to 2560457
+Garbage collection #9: 2560457 nodes / 0 free / 0.058s / 0.113s total
+Resizing node table from 2560457 to 5120891
+Garbage collection #10: 5120891 nodes / 0 free / 0.131s / 0.244s total
+Resizing node table from 5120891 to 10241771
+
+27944 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p_q : 166655
+  r   : 166732
+==================
+
+- Garbage collector was not activated
+An unexpected error occurred: type object 'TraceMonitor' has no attribute 'get_stat'
+Function 'process_events' - Elapsed time: 4.405632 seconds
+Function 'process_events' - Memory used: 874.84 MB
+Function 'process_events' - CPU used: 137.40%
+/usr/bin/time results
+cmd:python3 example_2_pre_eval.py --bits 20 --logfile log_500K.csv
+real: 4.64s
+user: 6.19s 
+sys: 0.15s 
+memory: 990928KB 
+cpu: 136%
+########## spec_modified.qtl 1M ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_2/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 342 free / 0.003s / 0.003s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.007s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.002s / 0.009s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.004s / 0.013s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.002s / 0.015s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.005s / 0.02s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.007s / 0.027s total
+Resizing node table from 640121 to 1280231
+Garbage collection #8: 1280231 nodes / 0 free / 0.024s / 0.051s total
+Resizing node table from 1280231 to 2560457
+Garbage collection #9: 2560457 nodes / 0 free / 0.056s / 0.107s total
+Resizing node table from 2560457 to 5120891
+Garbage collection #10: 5120891 nodes / 0 free / 0.122s / 0.229s total
+Resizing node table from 5120891 to 10241771
+Garbage collection #11: 10241771 nodes / 0 free / 0.256s / 0.485s total
+Resizing node table from 10241771 to 20241769
+
+55392 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p_q : 333432
+  r   : 333539
+==================
+
+- Garbage collector was not activated
+An unexpected error occurred: type object 'TraceMonitor' has no attribute 'get_stat'
+Function 'process_events' - Elapsed time: 8.640830 seconds
+Function 'process_events' - Memory used: 1506.45 MB
+Function 'process_events' - CPU used: 119.50%
+/usr/bin/time results
+cmd:python3 example_2_pre_eval.py --bits 20 --logfile log_1M.csv
+real: 8.87s
+user: 10.38s 
+sys: 0.23s 
+memory: 1637376KB 
+cpu: 119%
+########## spec_modified.qtl 5M ##########
+Configuration complete: Bits=30, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_2/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 812 free / 0.003s / 0.003s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.007s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.004s / 0.011s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.002s / 0.013s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.002s / 0.015s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.003s / 0.018s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.008s / 0.026s total
+Resizing node table from 640121 to 1280231
+Garbage collection #8: 1280231 nodes / 0 free / 0.024s / 0.05s total
+Resizing node table from 1280231 to 2560457
+Garbage collection #9: 2560457 nodes / 0 free / 0.054s / 0.104s total
+Resizing node table from 2560457 to 5120891
+Garbage collection #10: 5120891 nodes / 0 free / 0.117s / 0.221s total
+Resizing node table from 5120891 to 10241771
+Garbage collection #11: 10241771 nodes / 0 free / 0.25s / 0.471s total
+Resizing node table from 10241771 to 20241769
+Garbage collection #12: 20241769 nodes / 0 free / 0.582s / 1.053s total
+Resizing node table from 20241769 to 30241763
+Garbage collection #13: 30241763 nodes / 0 free / 0.892s / 1.945s total
+Resizing node table from 30241763 to 40241749
+Garbage collection #14: 40241749 nodes / 0 free / 1.196s / 3.141s total
+Resizing node table from 40241749 to 50241707
+Garbage collection #15: 50241707 nodes / 0 free / 1.429s / 4.57s total
+Resizing node table from 50241707 to 60241691
+Garbage collection #16: 60241691 nodes / 0 free / 1.757s / 6.327s total
+Resizing node table from 60241691 to 70241687
+Garbage collection #17: 70241687 nodes / 0 free / 2.177s / 8.504s total
+Resizing node table from 70241687 to 80241611
+Garbage collection #18: 80241611 nodes / 0 free / 2.398s / 10.902s total
+Resizing node table from 80241611 to 90241609
+Garbage collection #19: 90241609 nodes / 0 free / 2.757s / 13.659s total
+Resizing node table from 90241609 to 100241543
+Garbage collection #20: 100241543 nodes / 0 free / 3.212s / 16.871s total
+Resizing node table from 100241543 to 110241539
+
+278417 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p_q : 1666526
+  r   : 1666398
+==================
+
+- Garbage collector was not activated
+An unexpected error occurred: type object 'TraceMonitor' has no attribute 'get_stat'
+Function 'process_events' - Elapsed time: 76.032932 seconds
+Function 'process_events' - Memory used: 3076.81 MB
+Function 'process_events' - CPU used: 103.90%
+/usr/bin/time results
+cmd:python3 example_2_pre_eval.py --bits 30 --logfile log_5M.csv
+real: 76.40s
+user: 76.43s 
+sys: 2.93s 
+memory: 4722784KB 
+cpu: 103%

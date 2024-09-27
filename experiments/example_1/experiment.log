@@ -1,0 +1,273 @@
+=== RESULT ===
+########## spec 1 ##########
+########## spec_modified.qtl 10K ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_1/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 171 free / 0.004s / 0.004s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.008s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.003s / 0.011s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.002s / 0.013s total
+Resizing node table from 80021 to 160033
+
+7209 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 7211
+  q : 2789
+==================
+
+- Garbage collector was not activated
+
+7209 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 7211
+  q : 2789
+==================
+
+- Garbage collector was not activated
+Function 'process_events' - Elapsed time: 0.242115 seconds
+Function 'process_events' - Memory used: 65.00 MB
+Function 'process_events' - CPU used: 215.50%
+/usr/bin/time results
+cmd:python3 example_1_pre_eval.py --bits 20 --logfile log_10K.csv
+real: 0.98s
+user: 0.82s 
+sys: 0.08s 
+memory: 159632KB 
+cpu: 92%
+########## spec_modified.qtl 100K ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_1/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 171 free / 0.004s / 0.004s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.008s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.002s / 0.01s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.001s / 0.011s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.001s / 0.012s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.003s / 0.015s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.009s / 0.024s total
+Resizing node table from 640121 to 1280231
+
+71843 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 71848
+  q : 28152
+==================
+
+- Garbage collector was not activated
+
+71843 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 71848
+  q : 28152
+==================
+
+- Garbage collector was not activated
+Function 'process_events' - Elapsed time: 1.086951 seconds
+Function 'process_events' - Memory used: 282.05 MB
+Function 'process_events' - CPU used: 206.50%
+/usr/bin/time results
+cmd:python3 example_1_pre_eval.py --bits 20 --logfile log_100K.csv
+real: 1.31s
+user: 2.45s 
+sys: 0.08s 
+memory: 409744KB 
+cpu: 192%
+########## spec_modified.qtl 500K ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_1/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 171 free / 0.003s / 0.003s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.007s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.002s / 0.009s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.002s / 0.011s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.002s / 0.013s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.003s / 0.016s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.008s / 0.024s total
+Resizing node table from 640121 to 1280231
+Garbage collection #8: 1280231 nodes / 0 free / 0.02s / 0.044s total
+Resizing node table from 1280231 to 2560457
+Garbage collection #9: 2560457 nodes / 0 free / 0.05s / 0.094s total
+Resizing node table from 2560457 to 5120891
+Garbage collection #10: 5120891 nodes / 0 free / 0.109s / 0.203s total
+Resizing node table from 5120891 to 10241771
+
+359796 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 359810
+  q : 140190
+==================
+
+- Garbage collector was not activated
+
+359796 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 359810
+  q : 140190
+==================
+
+- Garbage collector was not activated
+Function 'process_events' - Elapsed time: 4.590331 seconds
+Function 'process_events' - Memory used: 947.53 MB
+Function 'process_events' - CPU used: 128.60%
+/usr/bin/time results
+cmd:python3 example_1_pre_eval.py --bits 20 --logfile log_500K.csv
+real: 4.82s
+user: 5.95s 
+sys: 0.25s 
+memory: 1225808KB 
+cpu: 128%
+########## spec_modified.qtl 1M ##########
+Configuration complete: Bits=20, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_1/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 171 free / 0.004s / 0.004s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.008s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.003s / 0.011s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.003s / 0.014s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.001s / 0.015s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.003s / 0.018s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.007s / 0.025s total
+Resizing node table from 640121 to 1280231
+Garbage collection #8: 1280231 nodes / 0 free / 0.02s / 0.045s total
+Resizing node table from 1280231 to 2560457
+Garbage collection #9: 2560457 nodes / 0 free / 0.049s / 0.094s total
+Resizing node table from 2560457 to 5120891
+Garbage collection #10: 5120891 nodes / 0 free / 0.109s / 0.203s total
+Resizing node table from 5120891 to 10241771
+Garbage collection #11: 10241771 nodes / 0 free / 0.234s / 0.437s total
+Resizing node table from 10241771 to 20241769
+
+720543 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 720607
+  q : 279393
+==================
+
+- Garbage collector was not activated
+
+720543 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 720607
+  q : 279393
+==================
+
+- Garbage collector was not activated
+Function 'process_events' - Elapsed time: 9.054206 seconds
+Function 'process_events' - Memory used: 1440.94 MB
+Function 'process_events' - CPU used: 124.40%
+/usr/bin/time results
+cmd:python3 example_1_pre_eval.py --bits 20 --logfile log_1M.csv
+real: 9.31s
+user: 10.85s 
+sys: 0.72s 
+memory: 1895232KB 
+cpu: 124%
+########## spec_modified.qtl 5M ##########
+Configuration complete: Bits=30, Mode=None, PrintStat=False, ResultFile=output/resultFile
+Could not load BDD package buddy: Can't load library: /Users/moraneus/PycharmProjects/pydejavu/experiments/example_1/libbuddy.dylib
+Garbage collection #1: 10007 nodes / 406 free / 0.003s / 0.003s total
+Resizing node table from 10007 to 20011
+Garbage collection #2: 20011 nodes / 0 free / 0.004s / 0.007s total
+Resizing node table from 20011 to 40013
+Garbage collection #3: 40013 nodes / 0 free / 0.002s / 0.009s total
+Resizing node table from 40013 to 80021
+Garbage collection #4: 80021 nodes / 0 free / 0.002s / 0.011s total
+Resizing node table from 80021 to 160033
+Garbage collection #5: 160033 nodes / 0 free / 0.003s / 0.014s total
+Resizing node table from 160033 to 320063
+Garbage collection #6: 320063 nodes / 0 free / 0.004s / 0.018s total
+Resizing node table from 320063 to 640121
+Garbage collection #7: 640121 nodes / 0 free / 0.008s / 0.026s total
+Resizing node table from 640121 to 1280231
+Garbage collection #8: 1280231 nodes / 0 free / 0.022s / 0.048s total
+Resizing node table from 1280231 to 2560457
+Garbage collection #9: 2560457 nodes / 0 free / 0.05s / 0.098s total
+Resizing node table from 2560457 to 5120891
+Garbage collection #10: 5120891 nodes / 0 free / 0.11s / 0.208s total
+Resizing node table from 5120891 to 10241771
+Garbage collection #11: 10241771 nodes / 0 free / 0.233s / 0.441s total
+Resizing node table from 10241771 to 20241769
+Garbage collection #12: 20241769 nodes / 0 free / 0.495s / 0.936s total
+Resizing node table from 20241769 to 30241763
+Garbage collection #13: 30241763 nodes / 0 free / 0.785s / 1.721s total
+Resizing node table from 30241763 to 40241749
+Garbage collection #14: 40241749 nodes / 0 free / 1.03s / 2.751s total
+Resizing node table from 40241749 to 50241707
+Garbage collection #15: 50241707 nodes / 0 free / 1.331s / 4.082s total
+Resizing node table from 50241707 to 60241691
+Garbage collection #16: 60241691 nodes / 0 free / 1.643s / 5.725s total
+Resizing node table from 60241691 to 70241687
+
+3598517 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 3599729
+  q : 1400271
+==================
+
+- Garbage collector was not activated
+
+3598517 errors detected!
+
+==================
+  Event Counts:
+------------------
+  p : 3599729
+  q : 1400271
+==================
+
+- Garbage collector was not activated
+Function 'process_events' - Elapsed time: 65.316848 seconds
+Function 'process_events' - Memory used: 2405.95 MB
+Function 'process_events' - CPU used: 109.30%
+/usr/bin/time results
+cmd:python3 example_1_pre_eval.py --bits 30 --logfile log_5M.csv
+real: 65.81s
+user: 60.57s 
+sys: 11.28s 
+memory: 4480384KB 
+cpu: 109%
