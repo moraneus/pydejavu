@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 
 # Add gtime alias
 RUN echo "export TIME='time result\ncmd:%C\nreal %es\nuser %Us \nsys  %Ss \nmemory:%MKB \ncpu %P'" >> ~/.bashrc
-    && echo "alias gtime='time' >> ~/.bashrc
+RUN echo "alias gtime='time'" >> ~/.bashrc
 
 # Add the Adoptium repository and install Java (Temurin JDK)
 RUN wget -O- https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /usr/share/keyrings/adoptium.asc \
