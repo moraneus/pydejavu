@@ -659,7 +659,12 @@ output/
 └── generated_trace.py  (Optional)
 ```
 
-## Contributors - For `PyDejaVu` (Ordered by last name):
+
+## Related Papers
+Related papers are in the  following [directory](https://github.com/moraneus/pydejavu/blob/main/extra/related%20papers).
+- Submission for [VMCAI 2025](https://conf.researchr.org/home/VMCAI-2025): [Embedding Runtime Verification in Python](https://github.com/moraneus/pydejavu/blob/main/extra/related%20papers/Embedding_Runtime_Verification_in_Python.pdf)
+
+## Contributors - For `PyDejaVu` (Ordered by last name)
 * [Klaus Havelund](http://www.havelund.com), Jet Propulsion Laboratory/NASA, USA
 * [Moran Omer](https://github.com/moraneus), Bar Ilan University, Israel
 * [Doron Peled](http://u.cs.biu.ac.il/~doronp), Bar Ilan University, Israel
